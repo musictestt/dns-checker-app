@@ -1,0 +1,15 @@
+node_modules/
+.env
+*.log
+.DS_Store
+
+# backups
+public/index.html.backup
+public/index.html.save
+
+# certificates / private keys
+*.key
+*.pem
+*.crt
+cert/
+ssl/

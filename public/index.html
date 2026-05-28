@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetworkMaster</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+  <div class="badge">DNS propagation checker</div>
+
+  <h1>Check DNS records with confidence</h1>
+  <p class="subtitle">
+    See how your domain resolves from our own DNS node and trusted external providers.
+  </p>
+</section>
+
+      <section class="card search-card">
+        <form class="form" id="dnsForm">
+          <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" />
+
+          <div class="custom-select" id="recordDropdown">
+            <button class="select-trigger" type="button" id="recordTrigger">
+              <span>
+                <strong id="selectedRecord">A</strong>
+                <small id="selectedRecordDesc">IPv4 address</small>
+              </span>
+            </button>
+
+            <div class="select-menu" id="recordMenu">
+              <button type="button" class="select-option active" data-value="A" data-desc="IPv4 address">
+                <strong>A</strong>
+                <small>IPv4 address</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="AAAA" data-desc="IPv6 address">
+                <strong>AAAA</strong>
+                <small>IPv6 address</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="NS" data-desc="Name servers">
+                <strong>NS</strong>
+                <small>Name servers</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="CNAME" data-desc="Alias record">
+                <strong>CNAME</strong>
+                <small>Alias record</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="MX" data-desc="Mail servers">
+                <strong>MX</strong>
+                <small>Mail servers</small>
+              </button>
+            </div>
+          </div>
+
+          <button id="checkButton" type="submit">Check DNS</button>
+        </form>
+
+        <div class="info-row">
+  <div class="meta">
+    Current location: Iran / Tehran
+  </div>
+
+  <div class="meta user-ip" id="userIpText">
+    Your IP: loading...
+  </div>
+</div>
+
+        <div class="error-box" id="errorBox"></div>
+      </section>
+
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

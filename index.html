@@ -1,0 +1,623 @@
+\<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/app.js"></script>
+  <title>DNS Checker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f7fb;
+      color: #172033;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e8f0ff;
+      color: #285bd4;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin: 0 0 12px;
+    }
+
+    .subtitle {
+      color: #5f6b7a;
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(20, 35, 70, 0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 160px 150px;
+      gap: 12px;
+    }
+
+    input, select, button {
+      height: 52px;
+      border-radius: 14px;
+      border: 1px solid #d8dfeb;
+      font-size: 16px;
+      padding: 0 16px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #3366ff;
+      box-shadow: 0 0 0 4px rgba(51, 102, 255, 0.12);
+    }
+
+    button {
+      background: #3366ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: #264fd1;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .custom-select {
+  position: relative;
+  height: 52px;
+}
+
+.select-trigger {
+  width: 100%;
+  height: 52px;
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #d8dfeb;
+  border-radius: 14px;
+  padding: 0 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  .select-trigger {
+  gap: 8px;
+}
+
+.select-trigger:hover {
+  background: #f8faff;
+  border-color: #b9c7f8;
+}
+
+.select-trigger span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.select-trigger strong {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.select-trigger {
+  width: 100%;
+  height: 52px;
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #d8dfeb;
+  border-radius: 14px;
+  padding: 0 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.select-menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #ffffff;
+  border: 1px solid #d8dfeb;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 18px 45px rgba(20, 35, 70, 0.16);
+}
+
+.custom-select.open .select-menu {
+  display: grid;
+  gap: 6px;
+}
+
+.select-option {
+  height: auto;
+  min-height: 54px;
+  width: 100%;
+  background: transparent;
+  color: #172033;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.select-option:hover {
+  background: #f4f7ff;
+}
+
+.select-option.active {
+  background: #e8f0ff;
+  color: #285bd4;
+}
+
+.select-option strong {
+  font-size: 15px;
+}
+
+.select-option small {
+  font-size: 12px;
+  color: #667085;
+    }
+
+    .select-option.active small {
+     color: #285bd4;
+    }
+
+    .meta {
+      margin-top: 16px;
+      color: #667085;
+      font-size: 14px;
+    }
+
+    .result-card {
+      display: none;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .location {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .status {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status.success {
+      background: #e9f9ef;
+      color: #187a3d;
+    }
+
+    .status.error {
+      background: #ffecec;
+      color: #b42318;
+    }
+
+    .answers {
+      display: grid;
+      gap: 10px;
+    }
+
+    .answer {
+      background: #f7f9fc;
+      border: 1px solid #e6ebf2;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: #667085;
+      background: #f7f9fc;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      background: #f4f7fb;
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .error-box {
+      display: none;
+      background: #fff1f1;
+      color: #b42318;
+      border: 1px solid #ffd0d0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 720px) {
+      h1 {
+        font-size: 32px;
+    /* Custom DNS record dropdown fix */
+.form {
+  grid-template-columns: 1fr 220px 150px;
+  align-items: start;
+}
+
+.custom-select {
+  position: relative;
+  height: 52px;
+  z-index: 50;
+}
+
+.select-trigger {
+  width: 100%;
+  height: 52px;
+  background: #ffffff !important;
+  color: #172033 !important;
+  border: 1px solid #d8dfeb !important;
+  border-radius: 14px;
+  padding: 0 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.select-trigger span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.select-trigger strong {
+  font-size: 15px;
+  line-height: 1.1;
+  color: #172033;
+}
+
+.select-trigger small {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #667085;
+}
+
+.select-menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #ffffff;
+  border: 1px solid #d8dfeb;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 18px 45px rgba(20, 35, 70, 0.16);
+}
+
+.custom-select.open .select-menu {
+  display: grid;
+  gap: 6px;
+}
+
+.select-option {
+  width: 100%;
+  min-height: 54px;
+  height: auto;
+  background: transparent !important;
+  color: #172033 !important;
+  border: none !important;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 400;
+}
+
+.select-option:hover {
+  background: #f4f7ff !important;
+}
+
+.select-option.active {
+  background: #e8f0ff !important;
+}
+
+.select-option strong {
+  font-size: 15px;
+  color: #172033;
+}
+
+.select-option small {
+  font-size: 12px;
+  color: #667085;
+}
+
+.select-option.active strong,
+.select-option.active small {
+  color: #285bd4;
+}
+      }
+
+      .form {
+        grid-template-columns: 1fr;
+      }
+
+      input, select, button {
+        width: 100%;
+      }
+
+      .result-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="badge">DNS propagation checker</div>
+        <h1>Check DNS records from Iran</h1>
+        <p class="subtitle">Search A, AAAA, NS, CNAME and MX records using our Iran DNS agent.</p>
+      </section>
+
+      <section class="card">
+        <form class="form" id="dnsForm">
+          <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" />
+          <div class="custom-select" id="recordDropdown">
+  <button class="select-trigger" type="button" id="recordTrigger">
+    <span>
+      <strong id="selectedRecord">A</strong>
+      <small id="selectedRecordDesc">IPv4 address</small>
+    </span>
+  </button>
+
+  <div class="select-menu" id="recordMenu">
+    <button type="button" class="select-option active" data-value="A" data-desc="IPv4 address">
+      <strong>A</strong>
+      <small>IPv4 address</small>
+    </button>
+
+    <button type="button" class="select-option" data-value="AAAA" data-desc="IPv6 address">
+      <strong>AAAA</strong>
+      <small>IPv6 address</small>
+    </button>
+
+    <button type="button" class="select-option" data-value="NS" data-desc="Name servers">
+      <strong>NS</strong>
+      <small>Name servers</small>
+    </button>
+
+    <button type="button" class="select-option" data-value="CNAME" data-desc="Alias record">
+      <strong>CNAME</strong>
+      <small>Alias record</small>
+    </button>
+
+    <button type="button" class="select-option" data-value="MX" data-desc="Mail servers">
+      <strong>MX</strong>
+      <small>Mail servers</small>
+    </button>
+  </div>
+</div>
+          <button id="checkButton" type="submit">Check DNS</button>
+        </form>
+
+        <div class="meta">
+          Current location: Iran / Tehran
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+      </section>
+
+      <section class="card result-card" id="resultCard">
+        <div class="result-header">
+          <div>
+            <div class="location" id="locationText">Iran / Tehran</div>
+            <div class="meta" id="queryText"></div>
+          </div>
+          <div class="status" id="statusBadge">success</div>
+        </div>
+
+        <div class="answers" id="answersBox"></div>
+
+        <div class="stats">
+  	    <div class="stat" id="responseTime">Response time: -</div>
+	</div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("dnsForm");
+    const domainInput = document.getElementById("domainInput");
+    const recordDropdown = document.getElementById("recordDropdown");
+    const recordTrigger = document.getElementById("recordTrigger");
+    const recordMenu = document.getElementById("recordMenu");
+    const selectedRecord = document.getElementById("selectedRecord");
+    const selectedRecordDesc = document.getElementById("selectedRecordDesc");
+
+    let selectedRecordType = "A";
+    const checkButton = document.getElementById("checkButton");
+    const resultCard = document.getElementById("resultCard");
+    const errorBox = document.getElementById("errorBox");
+    const locationText = document.getElementById("locationText");
+    const queryText = document.getElementById("queryText");
+    const statusBadge = document.getElementById("statusBadge");
+    const answersBox = document.getElementById("answersBox");
+    const responseTime = document.getElementById("responseTime");
+
+    function showError(message) {
+      errorBox.style.display = "block";
+      errorBox.textContent = message;
+    }
+
+    function hideError() {
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+    }
+recordTrigger.addEventListener("click", () => {
+  recordDropdown.classList.toggle("open");
+});
+
+recordMenu.querySelectorAll(".select-option").forEach(option => {
+  option.addEventListener("click", () => {
+    selectedRecordType = option.dataset.value;
+
+    selectedRecord.textContent = option.dataset.value;
+    selectedRecordDesc.textContent = option.dataset.desc;
+
+    recordMenu.querySelectorAll(".select-option").forEach(item => {
+      item.classList.remove("active");
+    });
+
+    option.classList.add("active");
+    recordDropdown.classList.remove("open");
+  });
+});
+
+document.addEventListener("click", event => {
+  if (!recordDropdown.contains(event.target)) {
+    recordDropdown.classList.remove("open");
+  }
+});
+
+    function renderAnswers(answers) {
+      answersBox.innerHTML = "";
+
+      if (!answers || answers.length === 0) {
+        answersBox.innerHTML = '<div class="empty">No records found.</div>';
+        return;
+      }
+
+      answers.forEach(answer => {
+        const div = document.createElement("div");
+        div.className = "answer";
+
+        if (typeof answer === "object") {
+          div.textContent = JSON.stringify(answer);
+        } else {
+          div.textContent = answer;
+        }
+
+        answersBox.appendChild(div);
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      hideError();
+
+      const domain = domainInput.value.trim().toLowerCase();
+      const type = selectedRecordType;
+
+      if (!domain) {
+        showError("Please enter a domain.");
+        return;
+      }
+
+      checkButton.disabled = true;
+      checkButton.textContent = "Checking...";
+
+      try {
+        const response = await fetch(`/api/check?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`);
+        const data = await response.json();
+
+        if (!response.ok || data.status !== "success") {
+          showError(data.error || "Request failed.");
+          return;
+        }
+
+        const item = data.results[0];
+
+        resultCard.style.display = "block";
+        locationText.textContent = `${item.location.country} / ${item.location.city}`;
+        queryText.textContent = `${data.query.domain} · ${data.query.type}`;
+
+        statusBadge.textContent = item.result.status;
+        statusBadge.className = `status ${item.result.status === "success" ? "success" : "error"}`;
+
+        renderAnswers(item.result.answers);
+
+        responseTime.textContent = `Response time: ${item.gatewayTimeMs ?? "-"} ms`;
+
+        if (item.result.status !== "success") {
+          showError(item.result.error || "DNS lookup failed.");
+        }
+      } catch (err) {
+        showError(err.message || "Network error.");
+      } finally {
+        checkButton.disabled = false;
+        checkButton.textContent = "Check DNS";
+      }
+    });
+  </script>
+</body>
+</html>
