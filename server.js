@@ -75,7 +75,20 @@ const externalProviders = [
   }
 ];
 
-const ALLOWED_TYPES = ["A", "AAAA", "NS", "CNAME", "MX"];
+const ALLOWED_TYPES = [
+  "A",
+  "AAAA",
+  "NS",
+  "CNAME",
+  "MX",
+  "PTR",
+  "SRV",
+  "SOA",
+  "TXT",
+  "CAA",
+  "DS",
+  "DNSKEY"
+];
 
 function isValidDomain(domain) {
   if (!domain || typeof domain !== "string") return false;
@@ -105,14 +118,22 @@ function dnsTypeToGoogleType(type) {
     NS: 2,
     CNAME: 5,
     MX: 15,
-    AAAA: 28
-  };
+    AAAA: 28,
+    PTR: 12,
+    TXT: 16,
+    SOA: 6,
+    SRV: 33,
+    CAA: 257,
+    DS: 43,
+    DNSKEY: 48
+  	   };
 
   return map[type] || type;
 }
 
-function googleStatusToError(status) {
+function googleStatusToError(status, type) {
   const map = {
+    0: `No ${type} record found`,
     1: "DNS query format error.",
     2: "Destination DNS server did not respond with a valid answer.",
     3: "Domain was not found.",
@@ -129,12 +150,19 @@ function parseGoogleAnswers(data, type) {
   }
 
   const typeMap = {
-    A: 1,
-    NS: 2,
-    CNAME: 5,
-    MX: 15,
-    AAAA: 28
-  };
+  A: 1,
+  NS: 2,
+  CNAME: 5,
+  SOA: 6,
+  PTR: 12,
+  MX: 15,
+  TXT: 16,
+  AAAA: 28,
+  SRV: 33,
+  DS: 43,
+  DNSKEY: 48,
+  CAA: 257
+};
 
   const wantedType = typeMap[type];
 
@@ -228,7 +256,7 @@ async function queryGoogleDns(provider, domain, type) {
       },
       result: {
         status: success ? "success" : "error",
-        error: success ? null : googleStatusToError(data.Status),
+        error: success ? null : googleStatusToError(data.Status, type),
         answers,
         responseTimeMs: Date.now() - startTime
       },
