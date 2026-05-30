@@ -11,7 +11,13 @@ const resultsContainer = document.getElementById("resultsContainer");
 const userIpText = document.getElementById("userIpText");
 
 
+let currentController = null;
+let isChecking = false;
 let selectedRecordType = "A";
+
+let cooldownUntil = 0;
+const COOLDOWN_MS = 1500;	
+
 
 function showError(message) {
   errorBox.style.display = "block";
@@ -270,6 +276,18 @@ document.addEventListener("click", event => {
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
+
+  if (isChecking && currentController) {
+    currentController.abort();
+    cooldownUntil = Date.now() + COOLDOWN_MS;
+    return;
+  }
+
+  if (Date.now() < cooldownUntil) {
+    showError("Please wait a moment before checking again.");
+    return;
+  }
+
   hideError();
   recordDropdown.classList.remove("open");
 
@@ -281,13 +299,26 @@ form.addEventListener("submit", async event => {
     return;
   }
 
-  checkButton.disabled = true;
-  checkButton.textContent = "Checking...";
+  currentController = new AbortController();
+  isChecking = true;
+
+  checkButton.disabled = false;
+  checkButton.textContent = "Cancel";
+  checkButton.classList.add("cancel-mode");
 
   try {
     const response = await fetch(
-      `/api/check?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`
+      `/api/check?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`,
+      {
+        signal: currentController.signal
+      }
     );
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+      throw new Error("Server returned a non-JSON response. Please try again later.");
+    }
 
     const data = await response.json();
 
@@ -298,9 +329,23 @@ form.addEventListener("submit", async event => {
 
     renderResults(data.results, data.query);
   } catch (err) {
+    if (err.name === "AbortError") {
+      showError("Request canceled.");
+      return;
+    }
+
     showError(err.message || "Network error.");
   } finally {
-    checkButton.disabled = false;
+    isChecking = false;
+    currentController = null;
+    cooldownUntil = Date.now() + COOLDOWN_MS;
+
     checkButton.textContent = "Check DNS";
+    checkButton.classList.remove("cancel-mode");
+    checkButton.disabled = true;
+
+    setTimeout(() => {
+      checkButton.disabled = false;
+    }, COOLDOWN_MS);
   }
 });

@@ -4,20 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NetworkMaster</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=9" />
 </head>
 
 <body>
   <main class="page">
     <div class="container">
       <section class="hero">
-  <div class="badge">DNS propagation checker</div>
+        <div class="badge">DNS propagation checker</div>
 
-  <h1>Check DNS records with confidence</h1>
-  <p class="subtitle">
-    See how your domain resolves from our own DNS node and trusted external providers.
-  </p>
-</section>
+        <h1>Check DNS records with confidence</h1>
+        <p class="subtitle">
+          See how your domain resolves from our own DNS node and trusted external providers.
+        </p>
+      </section>
 
       <section class="card search-card">
         <form class="form" id="dnsForm">
@@ -56,40 +56,41 @@
                 <strong>MX</strong>
                 <small>Mail servers</small>
               </button>
-	      <button type="button" class="select-option" data-value="PTR" data-desc="Reverse DNS">
-  <strong>PTR</strong>
-  <small>Reverse DNS</small>
-</button>
 
-<button type="button" class="select-option" data-value="SRV" data-desc="Service record">
-  <strong>SRV</strong>
-  <small>Service record</small>
-</button>
+              <button type="button" class="select-option" data-value="PTR" data-desc="Reverse DNS">
+                <strong>PTR</strong>
+                <small>Reverse DNS</small>
+              </button>
 
-<button type="button" class="select-option" data-value="SOA" data-desc="Zone authority">
-  <strong>SOA</strong>
-  <small>Zone authority</small>
-</button>
+              <button type="button" class="select-option" data-value="SRV" data-desc="Service record">
+                <strong>SRV</strong>
+                <small>Service record</small>
+              </button>
 
-<button type="button" class="select-option" data-value="TXT" data-desc="Text records">
-  <strong>TXT</strong>
-  <small>Text records</small>
-</button>
+              <button type="button" class="select-option" data-value="SOA" data-desc="Zone authority">
+                <strong>SOA</strong>
+                <small>Zone authority</small>
+              </button>
 
-<button type="button" class="select-option" data-value="CAA" data-desc="Certificate authority">
-  <strong>CAA</strong>
-  <small>Certificate authority</small>
-</button>
+              <button type="button" class="select-option" data-value="TXT" data-desc="Text records">
+                <strong>TXT</strong>
+                <small>Text records</small>
+              </button>
 
-<button type="button" class="select-option" data-value="DS" data-desc="DNSSEC delegation">
-  <strong>DS</strong>
-  <small>DNSSEC delegation</small>
-</button>
+              <button type="button" class="select-option" data-value="CAA" data-desc="Certificate authority">
+                <strong>CAA</strong>
+                <small>Certificate authority</small>
+              </button>
 
-<button type="button" class="select-option" data-value="DNSKEY" data-desc="DNSSEC public key">
-  <strong>DNSKEY</strong>
-  <small>DNSSEC public key</small>
-</button>
+              <button type="button" class="select-option" data-value="DS" data-desc="DNSSEC delegation">
+                <strong>DS</strong>
+                <small>DNSSEC delegation</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="DNSKEY" data-desc="DNSSEC public key">
+                <strong>DNSKEY</strong>
+                <small>DNSSEC public key</small>
+              </button>
             </div>
           </div>
 
@@ -97,14 +98,14 @@
         </form>
 
         <div class="info-row">
-  <div class="meta">
-    Current location: Iran / Tehran
-  </div>
+          <div class="meta">
+            Current location: Iran / Tehran
+          </div>
 
-  <div class="meta user-ip" id="userIpText">
-    Your IP: loading...
-  </div>
-</div>
+          <div class="meta user-ip" id="userIpText">
+            Your IP: loading...
+          </div>
+        </div>
 
         <div class="error-box" id="errorBox"></div>
       </section>
@@ -113,6 +114,6 @@
     </div>
   </main>
 
-  <script src="/app.js"></script>
+  <script src="/app.js?v=3"></script>
 </body>
 </html>
