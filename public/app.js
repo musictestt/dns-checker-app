@@ -1,23 +1,30 @@
 const form = document.getElementById("dnsForm");
 const domainInput = document.getElementById("domainInput");
+
 const recordDropdown = document.getElementById("recordDropdown");
 const recordTrigger = document.getElementById("recordTrigger");
 const recordMenu = document.getElementById("recordMenu");
 const selectedRecord = document.getElementById("selectedRecord");
 const selectedRecordDesc = document.getElementById("selectedRecordDesc");
+
+const continentDropdown = document.getElementById("continentDropdown");
+const continentTrigger = document.getElementById("continentTrigger");
+const continentMenu = document.getElementById("continentMenu");
+const selectedContinent = document.getElementById("selectedContinent");
+
 const checkButton = document.getElementById("checkButton");
 const errorBox = document.getElementById("errorBox");
 const resultsContainer = document.getElementById("resultsContainer");
 const userIpText = document.getElementById("userIpText");
-
+const currentLocationText = document.getElementById("currentLocationText");
 
 let currentController = null;
 let isChecking = false;
 let selectedRecordType = "A";
+let selectedContinentValue = "all";
 
 let cooldownUntil = 0;
-const COOLDOWN_MS = 1500;	
-
+const COOLDOWN_MS = 1500;
 
 function showError(message) {
   errorBox.style.display = "block";
@@ -131,6 +138,15 @@ async function copyToClipboard(text, button) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function createAnswersHtml(result) {
   if (result.status !== "success") {
     return `<div class="empty">${formatDnsError(result.error)}</div>`;
@@ -160,15 +176,6 @@ function createAnswersHtml(result) {
       `;
     })
     .join("");
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 function createResultCard(item, query) {
@@ -203,6 +210,7 @@ function renderResults(results, query) {
 
   const ownedResults = results.filter(item => item.location.sourceType === "owned");
   const externalResults = results.filter(item => item.location.sourceType === "external");
+  const globalResults = results.filter(item => item.location.sourceType === "global");
 
   if (ownedResults.length > 0) {
     resultsContainer.insertAdjacentHTML(
@@ -226,6 +234,17 @@ function renderResults(results, query) {
     });
   }
 
+  if (globalResults.length > 0) {
+    resultsContainer.insertAdjacentHTML(
+      "beforeend",
+      `<div class="result-group-title">Global DNS checks</div>`
+    );
+
+    globalResults.forEach(item => {
+      resultsContainer.insertAdjacentHTML("beforeend", createResultCard(item, query));
+    });
+  }
+
   resultsContainer.querySelectorAll(".copy-button").forEach(button => {
     button.addEventListener("click", () => {
       copyToClipboard(button.dataset.copy, button);
@@ -233,8 +252,16 @@ function renderResults(results, query) {
   });
 }
 
+/* =========================
+   Record dropdown
+========================= */
+
 recordTrigger.addEventListener("click", () => {
   recordDropdown.classList.toggle("open");
+
+  if (continentDropdown) {
+    continentDropdown.classList.remove("open");
+  }
 });
 
 recordMenu.querySelectorAll(".select-option").forEach(option => {
@@ -253,26 +280,82 @@ recordMenu.querySelectorAll(".select-option").forEach(option => {
   });
 });
 
-async function loadUserIp() {
-  if (!userIpText) return;
+/* =========================
+   Continent dropdown
+========================= */
 
+if (continentTrigger && continentDropdown && continentMenu && selectedContinent) {
+  continentTrigger.addEventListener("click", () => {
+    continentDropdown.classList.toggle("open");
+    recordDropdown.classList.remove("open");
+  });
+
+  continentMenu.querySelectorAll(".select-option").forEach(option => {
+    option.addEventListener("click", () => {
+      selectedContinentValue = option.dataset.value || "all";
+
+      const label = option.querySelector("strong")?.textContent?.trim() || "All Continents";
+      selectedContinent.textContent = label;
+
+      continentMenu.querySelectorAll(".select-option").forEach(item => {
+        item.classList.remove("active");
+      });
+
+      option.classList.add("active");
+      continentDropdown.classList.remove("open");
+    });
+  });
+}
+
+/* =========================
+   Client info
+========================= */
+
+async function loadClientInfo() {
   try {
-    const response = await fetch("/api/client-ip");
+    const response = await fetch("/api/me");
     const data = await response.json();
 
-    userIpText.textContent = `Your IP: ${data.ip || "Unknown"}`;
+    if (!response.ok || data.status !== "success") {
+      throw new Error("Failed to load client info");
+    }
+
+    const country = data.location?.country || "Unknown";
+    const city = data.location?.city || "Unknown";
+
+    if (currentLocationText) {
+      currentLocationText.textContent = `Current location: ${country} / ${city}`;
+    }
+
+    if (userIpText) {
+      userIpText.textContent = `Your IP: ${data.ip || "Unknown"}`;
+    }
   } catch (err) {
-    userIpText.textContent = "Your IP: unavailable";
+    if (currentLocationText) {
+      currentLocationText.textContent = "Current location: Unknown";
+    }
+
+    if (userIpText) {
+      userIpText.textContent = "Your IP: Unknown";
+    }
   }
 }
 
-loadUserIp();
+loadClientInfo();
 
 document.addEventListener("click", event => {
-  if (!recordDropdown.contains(event.target)) {
+  if (recordDropdown && !recordDropdown.contains(event.target)) {
     recordDropdown.classList.remove("open");
   }
+
+  if (continentDropdown && !continentDropdown.contains(event.target)) {
+    continentDropdown.classList.remove("open");
+  }
 });
+
+/* =========================
+   Form submit
+========================= */
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
@@ -291,8 +374,13 @@ form.addEventListener("submit", async event => {
   hideError();
   recordDropdown.classList.remove("open");
 
+  if (continentDropdown) {
+    continentDropdown.classList.remove("open");
+  }
+
   const domain = domainInput.value.trim().toLowerCase();
   const type = selectedRecordType;
+  const continent = selectedContinentValue;
 
   if (!domain) {
     showError("Please enter a domain.");
@@ -308,7 +396,7 @@ form.addEventListener("submit", async event => {
 
   try {
     const response = await fetch(
-      `/api/check?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`,
+      `/api/check?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}&continent=${encodeURIComponent(continent)}`,
       {
         signal: currentController.signal
       }
@@ -347,5 +435,45 @@ form.addEventListener("submit", async event => {
     setTimeout(() => {
       checkButton.disabled = false;
     }, COOLDOWN_MS);
+  }
+});
+
+/* =========================
+   Navbar scroll behavior
+========================= */
+
+const navbar = document.querySelector(".navbar");
+
+let lastScrollY = window.scrollY;
+let navbarTicking = false;
+
+function handleNavbarScroll() {
+  if (!navbar) return;
+
+  const currentScrollY = window.scrollY;
+
+  if (currentScrollY <= 40) {
+    navbar.classList.remove("navbar-hidden");
+    lastScrollY = currentScrollY;
+    navbarTicking = false;
+    return;
+  }
+
+  if (currentScrollY > lastScrollY && currentScrollY > 120) {
+    navbar.classList.add("navbar-hidden");
+  }
+
+  if (currentScrollY < lastScrollY) {
+    navbar.classList.remove("navbar-hidden");
+  }
+
+  lastScrollY = currentScrollY;
+  navbarTicking = false;
+}
+
+window.addEventListener("scroll", () => {
+  if (!navbarTicking) {
+    window.requestAnimationFrame(handleNavbarScroll);
+    navbarTicking = true;
   }
 });

@@ -3,22 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NetworkMaster</title>
-  <link rel="stylesheet" href="/styles.css?v=9" />
+
+  <title>DNS Checker & DNS Propagation Tool | NetworkMaster</title>
+
+  <meta
+    name="description"
+    content="Check DNS records and DNS propagation for any domain. Lookup A, AAAA, MX, NS, CNAME, TXT, SOA, CAA, PTR, SRV, DS, and DNSKEY records using NetworkMaster DNS Checker."
+  />
+
+  <meta
+    name="keywords"
+    content="DNS checker, DNS propagation, DNS lookup, DNS records, domain lookup, A record, MX record, TXT record, NS record, CNAME record"
+  />
+
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://dns.networkmaster.org/" />
+
+  <meta property="og:title" content="DNS Checker & DNS Propagation Tool | NetworkMaster" />
+  <meta
+    property="og:description"
+    content="Check DNS records and DNS propagation for any domain using NetworkMaster. Lookup common DNS records and compare results from different DNS sources."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dns.networkmaster.org/" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="DNS Checker & DNS Propagation Tool | NetworkMaster" />
+  <meta
+    name="twitter:description"
+    content="Check DNS records and DNS propagation for any domain. Fast DNS lookup for A, MX, TXT, NS, CNAME and more."
+  />
+
+  <link rel="stylesheet" href="/styles.css?v=25" />
+
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon/favicon-64.png?v=5" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png?v=5" />
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico?v=5" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=5" />
+
+  <meta name="theme-color" content="#4f46e5" />
 </head>
 
 <body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="navbar-logo" aria-label="NetworkMaster home">
+        <img src="/networkmaster-logo.png" alt="NetworkMaster Logo" class="logo-img" />
+      </a>
+
+      <nav class="navbar-menu" aria-label="Main navigation">
+        <a href="#" class="nav-link">
+          DNS Tools
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <a href="#" class="nav-link">
+          Domain Lookup
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <a href="#" class="nav-link">
+          Propagation
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <a href="#" class="nav-link">
+          DNS Health
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <a href="#" class="nav-link">Docs</a>
+
+        <a href="#" class="nav-link language">
+          <span class="flag-box">US</span>
+          English
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </nav>
+
+      <div class="navbar-actions">
+        <a href="#" class="btn btn-login">Sign in</a>
+        <a href="#" class="btn btn-primary">Get started</a>
+      </div>
+
+      <button class="mobile-menu-btn" aria-label="Open menu" type="button">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 7h16M4 12h16M4 17h16"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  </header>
+
   <main class="page">
     <div class="container">
-      <section class="hero">
-        <div class="badge">DNS propagation checker</div>
-
-        <h1>Check DNS records with confidence</h1>
-        <p class="subtitle">
-          See how your domain resolves from our own DNS node and trusted external providers.
-        </p>
-      </section>
-
       <section class="card search-card">
         <form class="form" id="dnsForm">
           <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" />
@@ -94,12 +186,50 @@
             </div>
           </div>
 
+          <div class="custom-select continent-select" id="continentDropdown">
+  <button class="select-trigger" type="button" id="continentTrigger">
+    <span>
+      <strong id="selectedContinent">Continents</strong>
+    </span>
+  </button>
+
+  <div class="select-menu" id="continentMenu">
+    <button type="button" class="select-option active" data-value="all">
+      <strong>Continents</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="africa">
+      <strong>Africa</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="asia">
+      <strong>Asia</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="europe">
+      <strong>Europe</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="north-america">
+      <strong>North America</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="australia">
+      <strong>Australia</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="south-america">
+      <strong>South America</strong>
+    </button>
+  </div>
+</div>
+
           <button id="checkButton" type="submit">Check DNS</button>
         </form>
 
         <div class="info-row">
-          <div class="meta">
-            Current location: Iran / Tehran
+          <div class="meta" id="currentLocationText">
+            Current location: Detecting...
           </div>
 
           <div class="meta user-ip" id="userIpText">
@@ -111,9 +241,137 @@
       </section>
 
       <div class="results-container" id="resultsContainer"></div>
+
+      <section class="guide-section">
+        <div class="guide-card">
+          <span class="guide-badge">DNS Guide</span>
+
+          <h2>How DNS checking works</h2>
+
+          <p>
+            DNS is the system that translates a domain name into the technical records
+            browsers, mail servers, and other services need to find your website. When
+            you check a domain here, NetworkMaster sends the query to our own DNS node
+            and also compares it with a trusted external resolver, so you can see how
+            the domain is resolving from different points of view.
+          </p>
+
+          <p>
+            This is useful when you have changed a DNS record, moved a website to a new
+            server, configured email records, or want to confirm that a domain is returning
+            the expected values.
+          </p>
+
+          <div class="guide-grid">
+            <article class="guide-item">
+              <h3>A record</h3>
+              <p>
+                Points a domain to an IPv4 address. This is one of the most common records
+                used for connecting a domain to a web server.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>AAAA record</h3>
+              <p>
+                Works like an A record, but for IPv6 addresses. It is used when a service
+                supports modern IPv6 connectivity.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>NS record</h3>
+              <p>
+                Shows which name servers are responsible for managing the DNS zone of
+                the domain.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>CNAME record</h3>
+              <p>
+                Creates an alias from one hostname to another. It is commonly used for
+                subdomains such as www or app.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>MX record</h3>
+              <p>
+                Defines which mail servers receive email for the domain. Priority values
+                decide which mail server should be tried first.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>TXT record</h3>
+              <p>
+                Stores text-based information. TXT records are often used for SPF, DKIM,
+                domain verification, and security-related settings.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>SOA record</h3>
+              <p>
+                Contains administrative information about the DNS zone, including the
+                primary name server and timing values.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>CAA record</h3>
+              <p>
+                Controls which certificate authorities are allowed to issue SSL certificates
+                for the domain.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>PTR record</h3>
+              <p>
+                Used for reverse DNS lookups. It maps an IP address back to a hostname.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>SRV record</h3>
+              <p>
+                Defines the location of specific services, including port and priority
+                information.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>DS record</h3>
+              <p>
+                Used in DNSSEC to connect a child zone to its parent zone and help validate
+                DNS trust.
+              </p>
+            </article>
+
+            <article class="guide-item">
+              <h3>DNSKEY record</h3>
+              <p>
+                Stores public keys used by DNSSEC to verify signed DNS responses.
+              </p>
+            </article>
+          </div>
+
+          <div class="guide-note">
+            <h3>Why results may be different</h3>
+            <p>
+              DNS records can take time to update across different resolvers. If one
+              location shows the new value and another still shows the old value, it
+              usually means the DNS change is still propagating or cached somewhere
+              along the path.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
-  <script src="/app.js?v=3"></script>
+  <script src="/app.js?v=9"></script>
 </body>
 </html>

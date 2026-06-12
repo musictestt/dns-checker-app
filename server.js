@@ -1,36 +1,48 @@
-		const express = require("express");
+const express = require("express");
 const cors = require("cors");
-
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const path = require("path");
+const net = require("net");
+const { execFile } = require("child_process");
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.disable("x-powered-by");
-
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      frameAncestors: ["'none'"]
-    }
-  }
-}));
+app.set("trust proxy", 1);
 
 app.use(cors());
-app.use(express.json({ limit: "10kb" }));
-app.use(express.static("public"));
-app.use(express.static("public"));
-app.set("trust proxy", true);
 
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"]
+      }
+    },
+    referrerPolicy: {
+      policy: "no-referrer"
+    },
+    frameguard: {
+      action: "sameorigin"
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true
+    }
+  })
+);
 
+app.use(express.static(path.join(__dirname, "public")));
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -43,9 +55,31 @@ const apiLimiter = rateLimit({
   }
 });
 
-app.use("/api/check", apiLimiter);
+const meLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    status: "error",
+    error: "Too many requests. Please try again later."
+  }
+});
 
-
+const ALLOWED_TYPES = new Set([
+  "A",
+  "AAAA",
+  "NS",
+  "CNAME",
+  "MX",
+  "PTR",
+  "SRV",
+  "SOA",
+  "TXT",
+  "CAA",
+  "DS",
+  "DNSKEY"
+]);
 
 const agents = [
   {
@@ -75,278 +109,484 @@ const externalProviders = [
   }
 ];
 
-const ALLOWED_TYPES = [
-  "A",
-  "AAAA",
-  "NS",
-  "CNAME",
-  "MX",
-  "PTR",
-  "SRV",
-  "SOA",
-  "TXT",
-  "CAA",
-  "DS",
-  "DNSKEY"
-];
+const ipLocationCache = new Map();
+const IP_LOCATION_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 function isValidDomain(domain) {
   if (!domain || typeof domain !== "string") return false;
-  if (domain.length > 253) return false;
-  if (domain.includes("..")) return false;
-  if (domain.startsWith(".") || domain.endsWith(".")) return false;
 
-  return /^(?!-)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,63}$/.test(domain);
+  const clean = domain.trim();
+
+  if (clean.length > 253) return false;
+  if (clean.includes("..")) return false;
+
+  return /^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,63}$/.test(clean);
 }
 
-function buildLocation(provider) {
-  return {
-    id: provider.id,
-    sourceType: provider.sourceType,
-    sourceLabel: provider.sourceLabel,
-    priority: provider.priority,
-    country: provider.country,
-    city: provider.city,
-    datacenter: provider.datacenter,
-    flag: provider.flag
-  };
-}
+function isPrivateIp(ip) {
+  if (!ip || typeof ip !== "string") return true;
 
-function dnsTypeToGoogleType(type) {
-  const map = {
-    A: 1,
-    NS: 2,
-    CNAME: 5,
-    MX: 15,
-    AAAA: 28,
-    PTR: 12,
-    TXT: 16,
-    SOA: 6,
-    SRV: 33,
-    CAA: 257,
-    DS: 43,
-    DNSKEY: 48
-  	   };
+  const clean = ip.replace("::ffff:", "");
 
-  return map[type] || type;
-}
-
-function googleStatusToError(status, type) {
-  const map = {
-    0: `No ${type} record found`,
-    1: "DNS query format error.",
-    2: "Destination DNS server did not respond with a valid answer.",
-    3: "Domain was not found.",
-    4: "DNS request type is not supported.",
-    5: "DNS request was refused."
-  };
-
-  return map[status] || `DNS error status ${status}`;
-}
-
-function parseGoogleAnswers(data, type) {
-  if (!data.Answer || !Array.isArray(data.Answer)) {
-    return [];
+  if (
+    clean === "127.0.0.1" ||
+    clean === "::1" ||
+    clean.startsWith("10.") ||
+    clean.startsWith("192.168.") ||
+    clean.startsWith("172.16.") ||
+    clean.startsWith("172.17.") ||
+    clean.startsWith("172.18.") ||
+    clean.startsWith("172.19.") ||
+    clean.startsWith("172.20.") ||
+    clean.startsWith("172.21.") ||
+    clean.startsWith("172.22.") ||
+    clean.startsWith("172.23.") ||
+    clean.startsWith("172.24.") ||
+    clean.startsWith("172.25.") ||
+    clean.startsWith("172.26.") ||
+    clean.startsWith("172.27.") ||
+    clean.startsWith("172.28.") ||
+    clean.startsWith("172.29.") ||
+    clean.startsWith("172.30.") ||
+    clean.startsWith("172.31.")
+  ) {
+    return true;
   }
 
-  const typeMap = {
-  A: 1,
-  NS: 2,
-  CNAME: 5,
-  SOA: 6,
-  PTR: 12,
-  MX: 15,
-  TXT: 16,
-  AAAA: 28,
-  SRV: 33,
-  DS: 43,
-  DNSKEY: 48,
-  CAA: 257
-};
-
-  const wantedType = typeMap[type];
-
-  return data.Answer
-    .filter(answer => answer.type === wantedType)
-    .map(answer => {
-      if (type === "MX") {
-        const parts = String(answer.data).trim().split(/\s+/);
-        return {
-          priority: Number(parts[0]),
-          exchange: parts.slice(1).join(" ").replace(/\.$/, "")
-        };
-      }
-
-      return String(answer.data).replace(/\.$/, "");
-    });
+  return false;
 }
 
-async function fetchJsonWithTimeout(url, timeoutMs = 4000) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+function getClientIp(req) {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const realIp = req.headers["x-real-ip"];
+  const cfIp = req.headers["cf-connecting-ip"];
+
+  let ip = "";
+
+  if (typeof forwardedFor === "string" && forwardedFor.trim()) {
+    ip = forwardedFor.split(",")[0].trim();
+  } else if (typeof realIp === "string" && realIp.trim()) {
+    ip = realIp.trim();
+  } else if (typeof cfIp === "string" && cfIp.trim()) {
+    ip = cfIp.trim();
+  } else if (req.ip) {
+    ip = req.ip;
+  } else if (req.socket && req.socket.remoteAddress) {
+    ip = req.socket.remoteAddress;
+  }
+
+  ip = ip.replace("::ffff:", "");
+
+  if (!net.isIP(ip)) {
+    return "";
+  }
+
+  return ip;
+}
+
+function execCurlJson(url, timeoutSeconds = 5) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "curl",
+      ["-sS", "-m", String(timeoutSeconds), url],
+      {
+        timeout: timeoutSeconds * 1000 + 1000
+      },
+      (error, stdout) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        try {
+          resolve(JSON.parse(stdout));
+        } catch (parseError) {
+          reject(parseError);
+        }
+      }
+    );
+  });
+}
+
+async function getIpLocation(ip) {
+  if (!ip || isPrivateIp(ip)) {
+    return {
+      country: "Unknown",
+      city: "Unknown"
+    };
+  }
+
+  const cached = ipLocationCache.get(ip);
+
+  if (cached && Date.now() - cached.createdAt < IP_LOCATION_CACHE_TTL_MS) {
+    return cached.location;
+  }
+
+  let location = {
+    country: "Unknown",
+    city: "Unknown"
+  };
 
   try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        accept: "application/json"
-      }
-    });
+    const data = await execCurlJson(`https://ipwho.is/${encodeURIComponent(ip)}`, 5);
 
-    return await response.json();
-  } finally {
-    clearTimeout(timeout);
+    if (data && data.success !== false) {
+      location = {
+        country: data.country || "Unknown",
+        city: data.city || "Unknown"
+      };
+    }
+  } catch (error) {
+    try {
+      const data = await execCurlJson(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, 5);
+
+      if (data && !data.error) {
+        location = {
+          country: data.country_name || "Unknown",
+          city: data.city || "Unknown"
+        };
+      }
+    } catch (secondError) {
+      location = {
+        country: "Unknown",
+        city: "Unknown"
+      };
+    }
   }
+
+  ipLocationCache.set(ip, {
+    createdAt: Date.now(),
+    location
+  });
+
+  return location;
+}
+
+function fetchJsonWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  return fetch(url, {
+    signal: controller.signal,
+    headers: {
+      accept: "application/json"
+    }
+  })
+    .then(async (response) => {
+      const text = await response.text();
+
+      let data = null;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        throw new Error("Invalid JSON response");
+      }
+
+      if (!response.ok) {
+        throw new Error(data && data.error ? data.error : "Request failed");
+      }
+
+      return data;
+    })
+    .finally(() => clearTimeout(timer));
+}
+
+function normalizeGoogleAnswer(type, answer) {
+  if (!Array.isArray(answer)) return [];
+
+  return answer
+    .filter((item) => item && typeof item.data === "string")
+    .map((item) => {
+      if (type === "MX") {
+        return item.data.replace(/\.$/, "");
+      }
+
+      if (type === "NS" || type === "CNAME" || type === "PTR") {
+        return item.data.replace(/\.$/, "");
+      }
+
+      return item.data;
+    });
 }
 
 async function queryOwnedAgent(agent, domain, type) {
-  const startTime = Date.now();
+  const startedAt = process.hrtime.bigint();
 
   try {
     const url =
-      `${agent.url}/resolve?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`;
+      `${agent.url}/resolve?domain=${encodeURIComponent(domain)}` +
+      `&type=${encodeURIComponent(type)}`;
 
-    const data = await fetchJsonWithTimeout(url, 8000);
+    const result = await fetchJsonWithTimeout(url, 10000);
+
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
 
     return {
-      location: buildLocation(agent),
+      location: {
+        id: agent.id,
+        sourceType: agent.sourceType,
+        sourceLabel: agent.sourceLabel,
+        priority: agent.priority,
+        country: agent.country,
+        city: agent.city,
+        datacenter: agent.datacenter,
+        flag: agent.flag
+      },
       query: {
         domain,
         type
       },
-      result: data.result,
-      gatewayTimeMs: Date.now() - startTime
+      result: {
+        status: result.status || "error",
+        error: result.error || null,
+        answers: Array.isArray(result.answers) ? result.answers : [],
+        responseTimeMs:
+          result.responseTimeMs !== undefined && result.responseTimeMs !== null
+            ? result.responseTimeMs
+            : null
+      },
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
     };
-  } catch (err) {
+  } catch (error) {
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
+
     return {
-      location: buildLocation(agent),
+      location: {
+        id: agent.id,
+        sourceType: agent.sourceType,
+        sourceLabel: agent.sourceLabel,
+        priority: agent.priority,
+        country: agent.country,
+        city: agent.city,
+        datacenter: agent.datacenter,
+        flag: agent.flag
+      },
       query: {
         domain,
         type
       },
       result: {
         status: "error",
-       error: err.name === "AbortError" ? "Agent request timed out." : "Agent request failed.",
+        error: "Internal DNS agent did not respond.",
         answers: [],
         responseTimeMs: null
       },
-      gatewayTimeMs: Date.now() - startTime
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
     };
   }
 }
 
 async function queryGoogleDns(provider, domain, type) {
-  const startTime = Date.now();
+  const startedAt = process.hrtime.bigint();
 
   try {
-    const googleType = dnsTypeToGoogleType(type);
     const url =
-      `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(googleType)}`;
+      `https://dns.google/resolve?name=${encodeURIComponent(domain)}` +
+      `&type=${encodeURIComponent(type)}`;
 
-    const data = await fetchJsonWithTimeout(url, 5000);
+    const data = await fetchJsonWithTimeout(url, 10000);
 
-    const answers = parseGoogleAnswers(data, type);
-    const success = data.Status === 0 && answers.length > 0;
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
+
+    const answers = normalizeGoogleAnswer(type, data.Answer);
+
+    let status = "success";
+    let error = null;
+
+    if (!answers.length) {
+      status = "error";
+      error = `No ${type} record found`;
+    }
 
     return {
-      location: buildLocation(provider),
+      location: {
+        id: provider.id,
+        sourceType: provider.sourceType,
+        sourceLabel: provider.sourceLabel,
+        priority: provider.priority,
+        country: provider.country,
+        city: provider.city,
+        datacenter: provider.datacenter,
+        flag: provider.flag
+      },
       query: {
         domain,
         type
       },
       result: {
-        status: success ? "success" : "error",
-        error: success ? null : googleStatusToError(data.Status, type),
+        status,
+        error,
         answers,
-        responseTimeMs: Date.now() - startTime
+        responseTimeMs: Number(gatewayTimeMs.toFixed(2))
       },
-      gatewayTimeMs: Date.now() - startTime
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
     };
-  } catch (err) {
+  } catch (error) {
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
+
     return {
-      location: buildLocation(provider),
+      location: {
+        id: provider.id,
+        sourceType: provider.sourceType,
+        sourceLabel: provider.sourceLabel,
+        priority: provider.priority,
+        country: provider.country,
+        city: provider.city,
+        datacenter: provider.datacenter,
+        flag: provider.flag
+      },
       query: {
         domain,
         type
       },
       result: {
         status: "error",
-        error: err.name === "AbortError" ? "External DNS request timed out." : "External DNS request failed.",
+        error: "External DNS request timed out.",
         answers: [],
         responseTimeMs: null
       },
-      gatewayTimeMs: Date.now() - startTime
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
     };
   }
 }
 
-app.get("/api/client-ip", (req, res) => {
-  const ip =
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    req.ip ||
-    req.socket.remoteAddress ||
-    "Unknown";
+async function queryExternalProvider(provider, domain, type) {
+  if (provider.provider === "google-doh") {
+    return queryGoogleDns(provider, domain, type);
+  }
+
+  return {
+    location: {
+      id: provider.id,
+      sourceType: provider.sourceType,
+      sourceLabel: provider.sourceLabel,
+      priority: provider.priority,
+      country: provider.country,
+      city: provider.city,
+      datacenter: provider.datacenter,
+      flag: provider.flag
+    },
+    query: {
+      domain,
+      type
+    },
+    result: {
+      status: "error",
+      error: "External provider is not supported.",
+      answers: [],
+      responseTimeMs: null
+    },
+    gatewayTimeMs: null
+  };
+}
+
+app.get("/api/me", meLimiter, async (req, res) => {
+  const ip = getClientIp(req);
+  const location = await getIpLocation(ip);
 
   res.json({
-    ip
+    status: "success",
+    ip: ip || "Unknown",
+    location
   });
 });
 
+app.get("/api/client-ip", meLimiter, async (req, res) => {
+  const ip = getClientIp(req);
+  const location = await getIpLocation(ip);
+
+  res.json({
+    status: "success",
+    ip: ip || "Unknown",
+    location
+  });
+});
 
 app.get("/api/locations", (req, res) => {
   res.json({
-    locations: [...agents, ...externalProviders].map(provider => buildLocation(provider))
+    status: "success",
+    locations: [
+      ...agents.map((agent) => ({
+        id: agent.id,
+        sourceType: agent.sourceType,
+        sourceLabel: agent.sourceLabel,
+        priority: agent.priority,
+        country: agent.country,
+        city: agent.city,
+        datacenter: agent.datacenter,
+        flag: agent.flag
+      })),
+      ...externalProviders.map((provider) => ({
+        id: provider.id,
+        sourceType: provider.sourceType,
+        sourceLabel: provider.sourceLabel,
+        priority: provider.priority,
+        country: provider.country,
+        city: provider.city,
+        datacenter: provider.datacenter,
+        flag: provider.flag
+      }))
+    ]
   });
 });
 
-app.get("/api/check", async (req, res) => {
+app.get("/api/check", apiLimiter, async (req, res) => {
   const domain = String(req.query.domain || "").trim().toLowerCase();
-  const type = String(req.query.type || "A").toUpperCase();
+  const type = String(req.query.type || "A").trim().toUpperCase();
 
-  if (!domain) {
+  if (!ALLOWED_TYPES.has(type)) {
     return res.status(400).json({
       status: "error",
-      error: "domain is required"
+      error: "Unsupported DNS record type."
     });
   }
 
   if (!isValidDomain(domain)) {
     return res.status(400).json({
       status: "error",
-      error: "invalid domain"
+      error: "Please enter a valid domain name."
     });
   }
 
-  if (!ALLOWED_TYPES.includes(type)) {
-    return res.status(400).json({
+  try {
+    const ownedResults = await Promise.all(
+      agents.map((agent) => queryOwnedAgent(agent, domain, type))
+    );
+
+    const externalResults = await Promise.all(
+      externalProviders.map((provider) => queryExternalProvider(provider, domain, type))
+    );
+
+    const results = [...ownedResults, ...externalResults].sort((a, b) => {
+      const firstPriority = a.location && a.location.priority ? a.location.priority : 999;
+      const secondPriority = b.location && b.location.priority ? b.location.priority : 999;
+
+      return firstPriority - secondPriority;
+    });
+
+    res.json({
+      status: "success",
+      query: {
+        domain,
+        type
+      },
+      results
+    });
+  } catch (error) {
+    res.status(500).json({
       status: "error",
-      error: "unsupported record type",
-      allowedTypes: ALLOWED_TYPES
+      error: "DNS check failed. Please try again."
     });
   }
+});
 
-  const ownedResults = await Promise.all(
-    agents.map(agent => queryOwnedAgent(agent, domain, type))
-  );
-
-  const externalResults = await Promise.all(
-    externalProviders.map(provider => queryGoogleDns(provider, domain, type))
-  );
-
-  const results = [...ownedResults, ...externalResults];
-
-  results.sort((a, b) => {
-    return (a.location.priority || 999) - (b.location.priority || 999);
-  });
-
-  res.json({
-    status: "success",
-    query: {
-      domain,
-      type
-    },
-    results
-  });
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(PORT, "127.0.0.1", () => {

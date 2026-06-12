@@ -6,7 +6,6 @@ node_modules/
 # backups
 public/index.html.backup
 public/index.html.save
-
 # certificates / private keys
 *.key
 *.pem
