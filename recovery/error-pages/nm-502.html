@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>502 - Bad Gateway | NetworkMaster</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="stylesheet" href="/nm-error-pages.css?v=50" />
+</head>
+
+<body class="nm-error-page">
+  <a href="/" class="navbar-logo" aria-label="NetworkMaster home">
+    <img src="/networkmaster-logo.png" alt="NetworkMaster Logo" class="logo-img" />
+  </a>
+
+  <main class="nm-error-shell">
+    <section class="nm-error-card">
+      <svg class="nm-error-graphic" viewBox="0 0 360 230" aria-hidden="true">
+        <defs>
+          <linearGradient id="nmAccent" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stop-color="#6d5dfc"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+
+          <filter id="nmShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.10"/>
+          </filter>
+        </defs>
+
+        <circle cx="62" cy="54" r="28" fill="none" stroke="#06b6d4" stroke-width="9"/>
+        <circle cx="304" cy="68" r="9" fill="none" stroke="#93c5fd" stroke-width="4"/>
+
+        <rect x="82" y="54" width="196" height="126" rx="22" fill="#ffffff" stroke="#0b1f4d" stroke-width="6" filter="url(#nmShadow)"/>
+
+        <rect x="112" y="82" width="136" height="22" rx="11" fill="#eef7ff" stroke="#0b1f4d" stroke-width="4"/>
+        <circle cx="128" cy="93" r="5" fill="#06b6d4"/>
+        <circle cx="146" cy="93" r="5" fill="#6d5dfc"/>
+        <line x1="168" y1="93" x2="228" y2="93" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+
+        <rect x="112" y="120" width="136" height="22" rx="11" fill="#eef7ff" stroke="#0b1f4d" stroke-width="4"/>
+        <circle cx="128" cy="131" r="5" fill="#06b6d4"/>
+        <circle cx="146" cy="131" r="5" fill="#6d5dfc"/>
+        <line x1="168" y1="131" x2="228" y2="131" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+
+        <path d="M156 180 L156 198 M204 180 L204 198" stroke="#0b1f4d" stroke-width="6" stroke-linecap="round"/>
+        <line x1="132" y1="198" x2="228" y2="198" stroke="#0b1f4d" stroke-width="6" stroke-linecap="round"/>
+
+        <path d="M258 136 L298 206 L218 206 Z" fill="url(#nmAccent)" opacity="0.96"/>
+        <line x1="258" y1="158" x2="258" y2="184" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="258" cy="195" r="5" fill="#ffffff"/>
+      </svg>
+
+      <div class="nm-error-code">502</div>
+
+      <h1>Bad Gateway</h1>
+
+      <p>
+        The service is temporarily unavailable. NetworkMaster may be restarting,
+        updating, or not responding correctly. Please try again in a few moments.
+      </p>
+
+      <div class="nm-error-actions">
+        <button class="nm-error-btn nm-error-btn-primary" onclick="window.location.reload()">
+          Try again
+        </button>
+        <a class="nm-error-btn" href="/">
+          Go to DNS Checker
+        </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

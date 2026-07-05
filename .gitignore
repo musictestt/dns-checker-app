@@ -12,3 +12,16 @@ public/index.html.save
 *.crt
 cert/
 ssl/
+
+# Local backups and temporary files
+*.bak
+*.bak-*
+*.bak-before-*
+*.tar.gz
+*.zip
+.DS_Store
+
+# Runtime / secrets
+.env
+node_modules/
+npm-debug.log*

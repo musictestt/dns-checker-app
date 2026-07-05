@@ -1,0 +1,61 @@
+ Describing process with id 0 - name dns-agent-iran 
+┌───────────────────┬──────────────────────────────────────────┐
+│ status            │ online                                   │
+│ name              │ dns-agent-iran                           │
+│ namespace         │ default                                  │
+│ version           │ 1.0.0                                    │
+│ restarts          │ 0                                        │
+│ uptime            │ 23D                                      │
+│ script path       │ /root/dns-agent/server.js                │
+│ script args       │ N/A                                      │
+│ error log path    │ /root/.pm2/logs/dns-agent-iran-error.log │
+│ out log path      │ /root/.pm2/logs/dns-agent-iran-out.log   │
+│ pid path          │ /root/.pm2/pids/dns-agent-iran-0.pid     │
+│ interpreter       │ node                                     │
+│ interpreter args  │ N/A                                      │
+│ script id         │ 0                                        │
+│ exec cwd          │ /root/dns-agent                          │
+│ exec mode         │ fork_mode                                │
+│ node.js version   │ 18.19.1                                  │
+│ node env          │ N/A                                      │
+│ watch & reload    │ ✘                                        │
+│ unstable restarts │ 0                                        │
+│ created at        │ 2026-06-12T09:54:07.892Z                 │
+└───────────────────┴──────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger dns-agent-iran <action_name>
+
+ Code metrics value 
+┌────────────────────────┬───────────┐
+│ Heap Size              │ 16.79 MiB │
+│ Heap Usage             │ 61.15 %   │
+│ Used Heap Size         │ 10.26 MiB │
+│ Active requests        │ 0         │
+│ Active handles         │ 4         │
+│ Event Loop Latency     │ 0.59 ms   │
+│ Event Loop Latency p95 │ 1.53 ms   │
+│ HTTP Mean Latency      │ 11.5 ms   │
+│ HTTP P95 Latency       │ 5462.3 ms │
+│ HTTP                   │ 0 req/min │
+└────────────────────────┴───────────┘
+ Divergent env variables from local env 
+┌────────────────┬─────────────────────────────────────────┐
+│ PWD            │ /root/dns-agent                         │
+│ SSH_CONNECTION │ 5.217.159.120 23791 213.176.121.68 2011 │
+│ XDG_SESSION_ID │ 1                                       │
+│ SSH_CLIENT     │ 5.217.159.120 23791 2011                │
+│ SSH_TTY        │ /dev/pts/0                              │
+│ OLDPWD         │ /root/dns-agent                         │
+└────────────────┴─────────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs dns-agent-iran [--lines 1000]` to display logs
+ Use `pm2 env 0` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage dns-agent-iran

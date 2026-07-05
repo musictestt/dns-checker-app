@@ -1,4 +1,5 @@
 const express = require("express");
+const dns = require("dns");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -83,13 +84,13 @@ const ALLOWED_TYPES = new Set([
 
 const agents = [
   {
-    id: "iran-tehran-parsvds",
+    id: "iran-tehran-hostiran",
     sourceType: "owned",
     sourceLabel: "Our server",
     priority: 1,
     country: "Iran",
     city: "Tehran",
-    datacenter: "Parsvds",
+    datacenter: "HostIran",
     flag: "IR",
     url: "http://127.0.0.1:3000"
   }
@@ -97,15 +98,75 @@ const agents = [
 
 const externalProviders = [
   {
-    id: "google-public-dns",
-    sourceType: "external",
-    sourceLabel: "External check",
-    priority: 100,
+    id: "cloudflare-dns",
     country: "Global",
-    city: "Google Public DNS",
-    datacenter: "Google",
-    flag: "GOOGLE",
-    provider: "google-doh"
+    city: "Cloudflare",
+    datacenter: "Cloudflare Public DNS",
+    flag: "CLOUDFLARE",
+    provider: "cloudflare-doh"
+  },
+  {
+    id: "google-dns",
+    country: "Global",
+    city: "Google",
+    datacenter: "Google Public DNS",
+    flag: "US",
+    provider: "public-dns",
+    servers: ["8.8.8.8", "8.8.4.4"]
+  },
+  {
+    id: "quad9-dns",
+    country: "Global",
+    city: "Quad9",
+    datacenter: "Quad9 Public DNS",
+    flag: "GLOBAL",
+    provider: "public-dns",
+    servers: ["9.9.9.9", "149.112.112.112"]
+  },
+  {
+    id: "opendns",
+    country: "Global",
+    city: "OpenDNS",
+    datacenter: "Cisco OpenDNS",
+    flag: "US",
+    provider: "public-dns",
+    servers: ["208.67.222.222", "208.67.220.220"]
+  },
+  {
+    id: "controld",
+    country: "Global",
+    city: "Control D",
+    datacenter: "Control D Public DNS",
+    flag: "GLOBAL",
+    provider: "public-dns",
+    servers: ["76.76.2.0", "76.76.10.0"]
+  },
+  {
+    id: "verisign",
+    country: "Global",
+    city: "Verisign",
+    datacenter: "Verisign Public DNS",
+    flag: "US",
+    provider: "public-dns",
+    servers: ["64.6.64.6", "64.6.65.6"]
+  },
+  {
+    id: "yandex-dns",
+    country: "Global",
+    city: "Yandex",
+    datacenter: "Yandex DNS",
+    flag: "RU",
+    provider: "public-dns",
+    servers: ["77.88.8.8", "77.88.8.1"]
+  },
+  {
+    id: "dnswatch",
+    country: "Global",
+    city: "DNS.WATCH",
+    datacenter: "DNS.WATCH Public DNS",
+    flag: "GLOBAL",
+    provider: "public-dns",
+    servers: ["84.200.69.80", "84.200.70.40"]
   }
 ];
 
@@ -262,15 +323,13 @@ async function getIpLocation(ip) {
   return location;
 }
 
-function fetchJsonWithTimeout(url, timeoutMs) {
+function fetchJsonWithTimeout(url, timeoutMs, headers = { accept: "application/json" }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   return fetch(url, {
     signal: controller.signal,
-    headers: {
-      accept: "application/json"
-    }
+    headers
   })
     .then(async (response) => {
       const text = await response.text();
@@ -292,11 +351,34 @@ function fetchJsonWithTimeout(url, timeoutMs) {
     .finally(() => clearTimeout(timer));
 }
 
-function normalizeGoogleAnswer(type, answer) {
+const DNS_JSON_TYPE_MAP = {
+  A: 1,
+  NS: 2,
+  CNAME: 5,
+  SOA: 6,
+  PTR: 12,
+  MX: 15,
+  TXT: 16,
+  AAAA: 28,
+  SRV: 33,
+  DS: 43,
+  DNSKEY: 48,
+  CAA: 257
+};
+
+function normalizeDnsJsonAnswer(type, answer) {
   if (!Array.isArray(answer)) return [];
 
+  const expectedType = DNS_JSON_TYPE_MAP[type];
+
   return answer
-    .filter((item) => item && typeof item.data === "string")
+    .filter((item) => {
+      return (
+        item &&
+        typeof item.data === "string" &&
+        (!expectedType || item.type === expectedType)
+      );
+    })
     .map((item) => {
       if (type === "MX") {
         return item.data.replace(/\.$/, "");
@@ -379,20 +461,22 @@ async function queryOwnedAgent(agent, domain, type) {
   }
 }
 
-async function queryGoogleDns(provider, domain, type) {
+async function queryCloudflareDns(provider, domain, type) {
   const startedAt = process.hrtime.bigint();
 
   try {
     const url =
-      `https://dns.google/resolve?name=${encodeURIComponent(domain)}` +
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}` +
       `&type=${encodeURIComponent(type)}`;
 
-    const data = await fetchJsonWithTimeout(url, 10000);
+    const data = await fetchJsonWithTimeout(url, 10000, {
+      accept: "application/dns-json"
+    });
 
     const finishedAt = process.hrtime.bigint();
     const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
 
-    const answers = normalizeGoogleAnswer(type, data.Answer);
+    const answers = normalizeDnsJsonAnswer(type, data.Answer);
 
     let status = "success";
     let error = null;
@@ -455,9 +539,99 @@ async function queryGoogleDns(provider, domain, type) {
   }
 }
 
+
+
+function withDnsTimeout(promise, timeoutMs = 4500) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("DNS query timeout")), timeoutMs)
+    )
+  ]);
+}
+
+async function resolveRecordWithPublicResolver(resolver, domain, type) {
+  const recordType = String(type || "A").toUpperCase();
+
+  if (recordType === "A") return resolver.resolve4(domain);
+  if (recordType === "AAAA") return resolver.resolve6(domain);
+  if (recordType === "NS") return resolver.resolveNs(domain);
+  if (recordType === "CNAME") return resolver.resolveCname(domain);
+  if (recordType === "MX") {
+    const records = await resolver.resolveMx(domain);
+    return records.map(r => `${r.priority} ${r.exchange}`);
+  }
+  if (recordType === "TXT") {
+    const records = await resolver.resolveTxt(domain);
+    return records.map(parts => parts.join(""));
+  }
+  if (recordType === "SOA") {
+    const record = await resolver.resolveSoa(domain);
+    return [JSON.stringify(record)];
+  }
+  if (recordType === "CAA") {
+    const records = await resolver.resolveCaa(domain);
+    return records.map(r => `${r.critical} ${r.issue || r.issuewild || r.iodef || JSON.stringify(r)}`);
+  }
+  if (recordType === "SRV") {
+    const records = await resolver.resolveSrv(domain);
+    return records.map(r => `${r.priority} ${r.weight} ${r.port} ${r.name}`);
+  }
+  if (recordType === "PTR") {
+    return resolver.reverse(domain);
+  }
+
+  return resolver.resolve(domain, recordType);
+}
+
+async function queryPublicDnsProvider(provider, domain, type) {
+  const startedAt = process.hrtime.bigint();
+
+  try {
+    const resolver = new dns.promises.Resolver();
+    resolver.setServers(provider.servers);
+
+    const answers = await withDnsTimeout(
+      resolveRecordWithPublicResolver(resolver, domain, type),
+      4500
+    );
+
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
+
+    return {
+      location: provider,
+      result: {
+        status: "success",
+        answers: Array.isArray(answers) ? answers : [answers],
+        responseTimeMs: null
+      },
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
+    };
+  } catch (error) {
+    const finishedAt = process.hrtime.bigint();
+    const gatewayTimeMs = Number(finishedAt - startedAt) / 1_000_000;
+
+    return {
+      location: provider,
+      result: {
+        status: "error",
+        error: error.message || "Public DNS query failed",
+        answers: [],
+        responseTimeMs: null
+      },
+      gatewayTimeMs: Number(gatewayTimeMs.toFixed(2))
+    };
+  }
+}
+
 async function queryExternalProvider(provider, domain, type) {
-  if (provider.provider === "google-doh") {
-    return queryGoogleDns(provider, domain, type);
+  if (provider.provider === "cloudflare-doh") {
+    return queryCloudflareDns(provider, domain, type);
+  }
+
+  if (provider.provider === "public-dns") {
+    return queryPublicDnsProvider(provider, domain, type);
   }
 
   return {
@@ -585,9 +759,23 @@ app.get("/api/check", apiLimiter, async (req, res) => {
   }
 });
 
-app.get("/{*splat}", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+
+/* CUSTOM 404 START */
+app.use((req, res) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({
+      status: "error",
+      message: "API route not found"
+    });
+  }
+
+  if (req.path.startsWith("/fa/")) {
+    return res.status(404).sendFile(path.join(__dirname, "public", "fa", "404.html"));
+  }
+
+  return res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
+/* CUSTOM 404 END */
 
 app.listen(PORT, "127.0.0.1", () => {
   console.log(`DNS Checker backend running on port ${PORT}`);

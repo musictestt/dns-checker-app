@@ -1,0 +1,231 @@
+* {
+  box-sizing: border-box;
+}
+
+body.nm-error-page {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 24%, rgba(6, 182, 212, 0.16), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #eef3ff 100%);
+}
+
+.nm-error-logo {
+  position: fixed;
+  top: 28px;
+  left: 54px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.nm-error-logo img {
+  width: 280px;
+  height: auto;
+  max-height: 58px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}
+
+.nm-error-shell {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 96px 18px 34px;
+  overflow: hidden;
+}
+
+.nm-error-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79, 70, 229, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, 0.07) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+  pointer-events: none;
+}
+
+.nm-error-card {
+  position: relative;
+  width: min(860px, 100%);
+  padding: 52px 34px 46px;
+  border-radius: 34px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.10);
+  backdrop-filter: blur(18px);
+  text-align: center;
+  overflow: hidden;
+}
+
+.nm-error-card::after {
+  content: "";
+  position: absolute;
+  right: -110px;
+  top: -110px;
+  width: 270px;
+  height: 270px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.10);
+}
+
+.nm-error-graphic {
+  position: relative;
+  z-index: 1;
+  width: 230px;
+  height: auto;
+  margin: 0 auto 8px;
+  display: block;
+}
+
+.nm-error-code {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(108px, 15vw, 205px);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -8px;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(126, 115, 255, 0.50);
+  text-shadow: 0 18px 42px rgba(79, 70, 229, 0.10);
+}
+
+.nm-error-card h1 {
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 12px;
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.2;
+  font-weight: 850;
+  letter-spacing: -1.2px;
+  color: #0b1f4d;
+}
+
+.nm-error-card p {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
+  margin: 0 auto;
+  color: #63718e;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.nm-error-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nm-error-btn {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b1f4d;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nm-error-btn-primary {
+  color: #fff;
+  border: 0;
+  background: linear-gradient(135deg, #6d5dfc, #06b6d4);
+  box-shadow: 0 18px 34px rgba(79, 70, 229, 0.24);
+}
+
+.nm-error-btn:hover {
+  opacity: 0.96;
+}
+
+@media (max-width: 760px) {
+  .nm-error-logo {
+    top: 20px;
+    left: 22px;
+  }
+
+  .nm-error-logo img {
+    width: 170px;
+    max-height: 48px;
+  }
+
+  .nm-error-shell {
+    padding-top: 92px;
+  }
+
+  .nm-error-card {
+    padding: 36px 20px;
+    border-radius: 24px;
+  }
+
+  .nm-error-graphic {
+    width: 200px;
+  }
+}
+
+
+
+
+/* FINAL MAIN SITE LOGO ON 502 START */
+
+body.nm-error-page .nm-error-logo,
+body.nm-error-page .nm-error-brand,
+body.nm-error-page .nm-error-page-logo {
+  display: none !important;
+}
+
+body.nm-error-page .navbar-logo {
+  position: fixed !important;
+  top: 30px !important;
+  left: 88px !important;
+  z-index: 9999 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+body.nm-error-page .navbar-logo .logo-img {
+  width: 200px !important;
+  max-width: none !important;
+  min-width: 200px !important;
+  height: auto !important;
+  max-height: none !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 768px) {
+  body.nm-error-page .navbar-logo {
+    top: 20px !important;
+    left: 22px !important;
+  }
+
+  body.nm-error-page .navbar-logo .logo-img {
+    width: 105px !important;
+    min-width: 105px !important;
+  }
+}
+
+/* FINAL MAIN SITE LOGO ON 502 END */

@@ -19,6 +19,7 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://dns.networkmaster.org/" />
 
+  <meta property="og:site_name" content="NetworkMaster" />
   <meta property="og:title" content="DNS Checker & DNS Propagation Tool | NetworkMaster" />
   <meta
     property="og:description"
@@ -34,7 +35,21 @@
     content="Check DNS records and DNS propagation for any domain. Fast DNS lookup for A, MX, TXT, NS, CNAME and more."
   />
 
-  <link rel="stylesheet" href="/styles.css?v=25" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NetworkMaster DNS Checker",
+    "alternateName": "DNS Checker & DNS Propagation Tool",
+    "url": "https://dns.networkmaster.org/",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "description": "Free DNS checker and DNS propagation tool for checking DNS records from NetworkMaster's DNS node and trusted global DNS providers."
+  }
+  </script>
+
+  <link rel="stylesheet" href="/main.css?v=61" />
+  <link rel="stylesheet" href="/styles.css?v=130" />
 
   <link rel="icon" type="image/png" sizes="64x64" href="/favicon/favicon-64.png?v=5" />
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png?v=5" />
@@ -45,77 +60,53 @@
 </head>
 
 <body>
-  <header class="navbar">
-    <div class="navbar-container">
-      <a href="/" class="navbar-logo" aria-label="NetworkMaster home">
-        <img src="/networkmaster-logo.png" alt="NetworkMaster Logo" class="logo-img" />
-      </a>
+  
+<header class="home-header">
+    <a href="/" class="brand" aria-label="NetworkMaster home">
+      <img src="/networkmaster-logo.png" alt="NetworkMaster" />
+    </a>
 
-      <nav class="navbar-menu" aria-label="Main navigation">
-        <a href="#" class="nav-link">
-          DNS Tools
+    <nav class="home-nav">
+      <a href="/tools/">Tools</a>
+      <a href="/tools/dns-checker/">DNS Checker</a>
+      <a href="/guides/dns-records/">Guides</a>
+      <a href="#launch">Quick Launch</a>
+
+
+      <div class="language-switcher" id="languageSwitcher">
+        <button class="nav-link language language-trigger" type="button" id="languageTrigger" aria-haspopup="true" aria-expanded="false">
+          <span class="flag-box" id="currentLangCode">US</span>
+          <span id="currentLangName">English</span>
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-        </a>
+        </button>
 
-        <a href="#" class="nav-link">
-          Domain Lookup
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-
-        <a href="#" class="nav-link">
-          Propagation
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-
-        <a href="#" class="nav-link">
-          DNS Health
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-
-        <a href="#" class="nav-link">Docs</a>
-
-        <a href="#" class="nav-link language">
-          <span class="flag-box">US</span>
-          English
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-      </nav>
-
-      <div class="navbar-actions">
-        <a href="#" class="btn btn-login">Sign in</a>
-        <a href="#" class="btn btn-primary">Get started</a>
+        <div class="language-menu" id="languageMenu" role="menu" aria-label="Choose language">
+          <a href="#" class="language-option" id="languageAltLink" role="menuitem">
+            <span class="flag-box" id="languageAltCode">FA</span>
+            <span id="languageAltName">Persian</span>
+          </a>
+        </div>
       </div>
 
-      <button class="mobile-menu-btn" aria-label="Open menu" type="button">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M4 7h16M4 12h16M4 17h16"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </button>
-    </div>
+    </nav>
+
+    <a class="header-cta" href="/login/">Sign in | Get started</a>
   </header>
+
 
   <main class="page">
     <div class="container">
+      <section class="seo-hero" aria-labelledby="dnsCheckerTitle">
+        <h1 id="dnsCheckerTitle">DNS Checker &amp; DNS Propagation Tool</h1>
+      </section>
+
       <section class="card search-card">
         <form class="form" id="dnsForm">
           <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" />
 
-          <div class="custom-select" id="recordDropdown">
+          <div class="custom-select" id="recordDropdown" data-nosnippet>
             <button class="select-trigger" type="button" id="recordTrigger">
               <span>
                 <strong id="selectedRecord">A</strong>
@@ -186,7 +177,7 @@
             </div>
           </div>
 
-          <div class="custom-select continent-select" id="continentDropdown">
+          <div class="custom-select continent-select" id="continentDropdown" data-nosnippet>
   <button class="select-trigger" type="button" id="continentTrigger">
     <span>
       <strong id="selectedContinent">Continents</strong>
@@ -372,6 +363,84 @@
     </div>
   </main>
 
-  <script src="/app.js?v=9"></script>
+
+
+<footer class="site-footer nm-footer">
+  <div class="nm-footer-inner">
+    <div class="nm-footer-top">
+      <div class="nm-footer-brand">
+        <a href="/" aria-label="NetworkMaster home">
+          <img src="/networkmaster-logo.png" alt="NetworkMaster" class="nm-footer-logo" />
+        </a>
+        <p>
+          NetworkMaster brings DNS, domain, SSL, IP and network troubleshooting tools into one clean workspace for developers, admins and IT teams.
+        </p>
+      </div>
+
+      <div class="nm-footer-grid">
+        <div class="nm-footer-col">
+          <h3>Platform</h3>
+          <ul>
+            <li><a href="/"><span></span>Home</a></li>
+            <li><a href="/tools/"><span></span>All Tools</a></li>
+            <li><a href="/login/"><span></span>Sign in</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>DNS & Domain</h3>
+          <ul>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Checker</a></li>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Lookup</a></li>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Propagation</a></li>
+            <li><a href="/tools/whois/"><span></span>WHOIS Lookup</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>Network Tools</h3>
+          <ul>
+            <li><a href="/tools/ssl-checker/"><span></span>SSL Checker</a></li>
+            <li><a href="/tools/ip-lookup/"><span></span>IP Lookup</a></li>
+            <li><a href="/tools/port-checker/"><span></span>Port Checker</a></li>
+            <li><a href="/tools/traceroute/"><span></span>Traceroute</a></li>
+            <li><a href="/tools/ping/"><span></span>Ping</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>Guides</h3>
+          <ul>
+            <li><a href="/guides/dns-records/"><span></span>DNS Records Guide</a></li>
+            <li><a href="/guides/dns-records/"><span></span>DNS Propagation</a></li>
+            <li><a href="/guides/dns-records/"><span></span>DNSSEC Basics</a></li>
+            <li><a href="/guides/dns-records/"><span></span>TTL Explained</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>Language</h3>
+          <ul>
+            <li><a href="/tools/dns-checker/"><span></span>English</a></li>
+            <li><a href="/tools/dns-checker/fa/"><span></span>Persian</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nm-footer-bottom">
+      <p>Copyright © NetworkMaster.org. All rights reserved.</p>
+      <div class="nm-footer-bottom-links">
+        <a href="/tools/">Tools</a>
+        <a href="/guides/dns-records/">Guides</a>
+        <a href="/login/">Sign in</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+  <script src="/app.js?v=150"></script>
 </body>
 </html>

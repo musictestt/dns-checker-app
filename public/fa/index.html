@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>بررسی DNS دامنه و وضعیت اعمال رکوردها | NetworkMaster</title>
+
+  <meta
+    name="description"
+    content="Check DNS records and DNS propagation for any domain. Lookup A, AAAA, MX, NS, CNAME, TXT, SOA, CAA, PTR, SRV, DS, and DNSKEY records using NetworkMaster DNS Checker."
+  />
+
+  <meta
+    name="keywords"
+    content="DNS checker, DNS propagation, DNS lookup, DNS records, domain lookup, A record, MX record, TXT record, NS record, CNAME record"
+  />
+
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://dns.networkmaster.org/fa/" />
+  <link rel="alternate" hreflang="en" href="https://dns.networkmaster.org/" />
+  <link rel="alternate" hreflang="fa" href="https://dns.networkmaster.org/fa/" />
+  <link rel="alternate" hreflang="x-default" href="https://dns.networkmaster.org/" />
+
+  <meta property="og:site_name" content="NetworkMaster" />
+  <meta property="og:title" content="بررسی DNS دامنه و وضعیت اعمال رکوردها | NetworkMaster" />
+  <meta
+    property="og:description"
+    content="Check DNS records and DNS propagation for any domain using NetworkMaster. Lookup common DNS records and compare results from different DNS sources."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dns.networkmaster.org/" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="بررسی DNS دامنه و وضعیت اعمال رکوردها | NetworkMaster" />
+  <meta
+    name="twitter:description"
+    content="Check DNS records and DNS propagation for any domain. Fast DNS lookup for A, MX, TXT, NS, CNAME and more."
+  />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NetworkMaster DNS Checker",
+    "alternateName": "DNS Checker & DNS انتشار DNS Tool",
+    "url": "https://dns.networkmaster.org/",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "description": "Free DNS checker and DNS propagation tool for checking DNS records from NetworkMaster's DNS node and trusted global DNS providers."
+  }
+  </script>
+  <link rel="stylesheet" href="/main.css?v=61" />
+  <link rel="stylesheet" href="/styles.css?v=132" />
+
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon/favicon-64.png?v=5" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png?v=5" />
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico?v=5" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=5" />
+
+  <meta name="theme-color" content="#4f46e5" />
+</head>
+
+<body class="fa-page">
+  
+<header class="home-header">
+    <a href="/" class="brand" aria-label="NetworkMaster home">
+      <img src="/networkmaster-logo.png" alt="NetworkMaster" />
+    </a>
+
+    <nav class="home-nav">
+      <a href="/tools/">ابزارها</a>
+      <a href="/tools/dns-checker/fa/">بررسی DNS</a>
+      <a href="/guides/dns-records/">راهنما</a>
+      <a href="#launch">Quick Launch</a>
+
+
+      <div class="language-switcher" id="languageSwitcher">
+        <button class="nav-link language language-trigger" type="button" id="languageTrigger" aria-haspopup="true" aria-expanded="false">
+          <span class="flag-box" id="currentLangCode">FA</span>
+          <span id="currentLangName">Persian</span>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="language-menu" id="languageMenu" role="menu" aria-label="Choose language">
+          <a href="/tools/dns-checker/" class="language-option" id="languageAltLink" role="menuitem">
+            <span class="flag-box" id="languageAltCode">US</span>
+            <span id="languageAltName">English</span>
+          </a>
+        </div>
+      </div>
+
+    </nav>
+
+    <a class="header-cta" href="/login/">ورود | ثبت‌نام</a>
+  </header>
+
+
+  <main class="page">
+    <div class="container">
+      <section class="seo-hero" aria-labelledby="dnsCheckerTitle">
+        <h1 id="dnsCheckerTitle">بررسی DNS دامنه و وضعیت اعمال رکوردها</h1>
+      </section>
+
+      <section class="card search-card">
+        <form class="form" id="dnsForm">
+          <input id="domainInput" type="text" placeholder="example.com" autocomplete="off" />
+
+          <div class="custom-select" id="recordDropdown" data-nosnippet>
+            <button class="select-trigger" type="button" id="recordTrigger">
+              <span>
+                <strong id="selectedRecord">A</strong>
+                <small id="selectedRecordDesc">آدرس IPv4</small>
+              </span>
+            </button>
+
+            <div class="select-menu" id="recordMenu">
+              <button type="button" class="select-option active" data-value="A" data-desc="آدرس IPv4">
+                <strong>A</strong>
+                <small>آدرس IPv4</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="AAAA" data-desc="آدرس IPv6">
+                <strong>AAAA</strong>
+                <small>آدرس IPv6</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="NS" data-desc="سرورهای نام">
+                <strong>NS</strong>
+                <small>سرورهای نام</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="CNAME" data-desc="رکورد نام مستعار">
+                <strong>CNAME</strong>
+                <small>رکورد نام مستعار</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="MX" data-desc="سرورهای ایمیل">
+                <strong>MX</strong>
+                <small>سرورهای ایمیل</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="PTR" data-desc="DNS معکوس">
+                <strong>PTR</strong>
+                <small>DNS معکوس</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="SRV" data-desc="رکورد سرویس">
+                <strong>SRV</strong>
+                <small>رکورد سرویس</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="SOA" data-desc="مرجع ناحیه">
+                <strong>SOA</strong>
+                <small>مرجع ناحیه</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="TXT" data-desc="رکوردهای متنی">
+                <strong>TXT</strong>
+                <small>رکوردهای متنی</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="CAA" data-desc="مرجع صدور گواهی">
+                <strong>CAA</strong>
+                <small>مرجع صدور گواهی</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="DS" data-desc="واگذاری DNSSEC">
+                <strong>DS</strong>
+                <small>واگذاری DNSSEC</small>
+              </button>
+
+              <button type="button" class="select-option" data-value="DNSKEY" data-desc="کلید عمومی DNSSEC">
+                <strong>DNSKEY</strong>
+                <small>کلید عمومی DNSSEC</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="custom-select continent-select" id="continentDropdown" data-nosnippet>
+  <button class="select-trigger" type="button" id="continentTrigger">
+    <span>
+      <strong id="selectedContinent">همه مناطق</strong>
+    </span>
+  </button>
+
+  <div class="select-menu" id="continentMenu">
+    <button type="button" class="select-option active" data-value="all">
+      <strong>همه مناطق</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="africa">
+      <strong>آفریقا</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="asia">
+      <strong>آسیا</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="europe">
+      <strong>اروپا</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="north-america">
+      <strong>آمریکای شمالی</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="australia">
+      <strong>استرالیا</strong>
+    </button>
+
+    <button type="button" class="select-option" data-value="south-america">
+      <strong>آمریکای جنوبی</strong>
+    </button>
+  </div>
+</div>
+
+          <button id="checkButton" type="submit">بررسی DNS</button>
+        </form>
+
+        <div class="info-row">
+          <div class="meta" id="currentLocationText">
+            موقعیت فعلی: در حال شناسایی...
+          </div>
+
+          <div class="meta user-ip" id="userIpText">
+            IP شما: در حال بارگذاری...
+          </div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+      </section>
+
+      <div class="results-container" id="resultsContainer"></div>
+
+      
+
+<section class="guide-section fa-dns-guide" id="dns-guide" dir="rtl">
+  <div class="guide-card fa-guide-card-single">
+    <span class="guide-badge">راهنمای DNS</span>
+
+    <h2>راهنمای جامع DNS و انواع رکوردهای دی‌ان‌اس</h2>
+
+    <p class="guide-intro">
+      در این بخش با مفهوم DNS، روش تست DNS آنلاین و کاربرد مهم‌ترین رکوردهای دامنه آشنا می‌شوید.
+    </p>
+
+    <div class="guide-note fa-guide-note-main">
+      <h3>DNS یا دی‌ان‌اس چیست؟</h3>
+      <p>
+        DNS یا سیستم نام دامنه، یکی از اصلی‌ترین بخش‌های اینترنت است. وقتی کاربر آدرس یک سایت مثل
+        example.com را وارد می‌کند، DNS کمک می‌کند آن نام دامنه به اطلاعات فنی قابل استفاده برای
+        سرورها تبدیل شود؛ مثل آدرس IP، رکوردهای ایمیل، Name Serverها و تنظیمات امنیتی دامنه.
+      </p>
+      <p>
+        به زبان ساده، DNS مانند دفترچه راهنمای اینترنت عمل می‌کند. کاربر نام دامنه را وارد می‌کند و
+        DNS مشخص می‌کند این دامنه باید به کدام سرور، IP یا سرویس متصل شود.
+      </p>
+      <p>
+        اگر DNS دامنه درست تنظیم نشده باشد، ممکن است سایت باز نشود، ایمیل‌ها دریافت نشوند، SSL به
+        مشکل بخورد یا رکوردهای جدید با تأخیر در اینترنت دیده شوند.
+      </p>
+    </div>
+
+    <div class="guide-note fa-guide-note-main">
+      <h3>تست DNS آنلاین NetworkMaster چطور کار می‌کند؟</h3>
+      <p>
+        وقتی یک دامنه را در NetworkMaster بررسی می‌کنید، نتیجه فقط از یک نقطه نمایش داده نمی‌شود.
+        درخواست DNS از نود اختصاصی ما بررسی می‌شود و در کنار آن با یک Resolver خارجی معتبر مقایسه
+        می‌گردد.
+      </p>
+      <p>
+        این مقایسه کمک می‌کند بفهمید رکوردهای DNS واقعاً اعمال شده‌اند یا هنوز بعضی Resolverها
+        مقدار قبلی را از Cache برمی‌گردانند.
+      </p>
+    </div>
+
+    <div class="guide-note fa-guide-note-main">
+      <h3>چه زمانی به تست DNS آنلاین نیاز داریم؟</h3>
+      <ul>
+        <li>بعد از انتقال سایت به سرور یا هاست جدید</li>
+        <li>بعد از تغییر Name Serverهای دامنه</li>
+        <li>بعد از تنظیم رکوردهای ایمیل مثل MX و TXT</li>
+        <li>بعد از تغییر رکوردهای A، AAAA، CNAME یا TXT</li>
+        <li>وقتی سایت برای بعضی کاربران باز می‌شود و برای بعضی دیگر نه</li>
+      </ul>
+    </div>
+
+    <h3 class="records-title">آشنایی با انواع رکوردهای DNS</h3>
+
+    <div class="guide-grid fa-guide-grid">
+      <article class="guide-item">
+        <h3>رکورد A</h3>
+        <p>دامنه یا زیردامنه را به یک آدرس IPv4 متصل می‌کند و معمولاً برای اتصال سایت به سرور وب استفاده می‌شود.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد AAAA</h3>
+        <p>مانند رکورد A است، اما برای آدرس‌های IPv6 استفاده می‌شود.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد NS</h3>
+        <p>مشخص می‌کند کدام Name Serverها مسئول مدیریت رکوردهای DNS دامنه هستند.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد CNAME</h3>
+        <p>یک دامنه یا زیردامنه را به نام دیگری متصل می‌کند؛ مثل اتصال www یا app به مقصد دیگر.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد MX</h3>
+        <p>مشخص می‌کند ایمیل‌های دامنه باید به کدام Mail Server ارسال شوند.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد TXT</h3>
+        <p>برای ذخیره اطلاعات متنی، تأیید مالکیت دامنه، SPF، DKIM، DMARC و تنظیمات امنیت ایمیل استفاده می‌شود.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد SOA</h3>
+        <p>اطلاعات مدیریتی DNS Zone مثل Name Server اصلی و مقادیر زمانی به‌روزرسانی را نگه می‌دارد.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد CAA</h3>
+        <p>مشخص می‌کند کدام صادرکننده‌های گواهی SSL اجازه دارند برای دامنه شما Certificate صادر کنند.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد PTR</h3>
+        <p>برای Reverse DNS استفاده می‌شود و یک IP را به نام دامنه یا Hostname برمی‌گرداند.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد SRV</h3>
+        <p>محل یک سرویس خاص را همراه با پورت، اولویت و وزن مشخص می‌کند.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد DS</h3>
+        <p>بخشی از DNSSEC است و برای ایجاد زنجیره اعتماد بین Zone والد و فرزند استفاده می‌شود.</p>
+      </article>
+
+      <article class="guide-item">
+        <h3>رکورد DNSKEY</h3>
+        <p>کلیدهای عمومی DNSSEC را نگه می‌دارد و برای اعتبارسنجی پاسخ‌های امضاشده DNS استفاده می‌شود.</p>
+      </article>
+    </div>
+
+    <div class="guide-note fa-guide-note-main">
+      <h3>چرا نتیجه تست DNS در نقاط مختلف متفاوت است؟</h3>
+      <p>
+        بعد از تغییر رکوردهای DNS، نتیجه همیشه در همه جا هم‌زمان به‌روزرسانی نمی‌شود. دلیل اصلی این
+        موضوع Cache شدن رکوردها در Resolverها و سرویس‌دهنده‌های مختلف اینترنتی است.
+      </p>
+      <p>
+        هر رکورد DNS مقداری به نام TTL دارد. TTL مشخص می‌کند یک Resolver تا چه مدت می‌تواند مقدار
+        یک رکورد را در Cache نگه دارد.
+      </p>
+      <p>
+        با ابزار تست DNS آنلاین NetworkMaster می‌توانید وضعیت رکوردهای دامنه را بررسی کنید، اختلاف
+        بین پاسخ‌ها را ببینید و مطمئن شوید تنظیمات DNS، ایمیل و رکوردهای اصلی دامنه به‌درستی اعمال
+        شده‌اند.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+    </div>
+  </main>
+
+
+
+<footer class="site-footer nm-footer">
+  <div class="nm-footer-inner">
+    <div class="nm-footer-top">
+      <div class="nm-footer-brand">
+        <a href="/" aria-label="NetworkMaster home">
+          <img src="/networkmaster-logo.png" alt="NetworkMaster" class="nm-footer-logo" />
+        </a>
+        <p>
+          NetworkMaster مجموعه‌ای از ابزارهای بررسی DNS، دامنه، SSL، IP و عیب‌یابی شبکه را برای مدیران سایت، توسعه‌دهندگان و تیم‌های فنی فراهم می‌کند.
+        </p>
+      </div>
+
+      <div class="nm-footer-grid">
+        <div class="nm-footer-col">
+          <h3>پلتفرم</h3>
+          <ul>
+            <li><a href="/"><span></span>صفحه اصلی</a></li>
+            <li><a href="/tools/"><span></span>همه ابزارها</a></li>
+            <li><a href="/login/"><span></span>ورود</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>DNS و دامنه</h3>
+          <ul>
+            <li><a href="/tools/dns-checker/fa/"><span></span>بررسی DNS</a></li>
+            <li><a href="/tools/dns-checker/fa/"><span></span>جستجوی DNS</a></li>
+            <li><a href="/tools/dns-checker/fa/"><span></span>انتشار DNS</a></li>
+            <li><a href="/tools/whois/"><span></span>جستجوی WHOIS</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>ابزارهای شبکه</h3>
+          <ul>
+            <li><a href="/tools/ssl-checker/"><span></span>بررسی SSL</a></li>
+            <li><a href="/tools/ip-lookup/"><span></span>جستجوی IP</a></li>
+            <li><a href="/tools/port-checker/"><span></span>بررسی پورت</a></li>
+            <li><a href="/tools/traceroute/"><span></span>Traceroute</a></li>
+            <li><a href="/tools/ping/"><span></span>Ping</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>راهنماها</h3>
+          <ul>
+            <li><a href="/guides/dns-records/"><span></span>راهنمای رکوردهای DNS</a></li>
+            <li><a href="/guides/dns-records/"><span></span>انتشار DNS</a></li>
+            <li><a href="/guides/dns-records/"><span></span>مبانی DNSSEC</a></li>
+            <li><a href="/guides/dns-records/"><span></span>TTL چیست؟</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-footer-col">
+          <h3>زبان</h3>
+          <ul>
+            <li><a href="/tools/dns-checker/"><span></span>English</a></li>
+            <li><a href="/tools/dns-checker/fa/"><span></span>فارسی</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nm-footer-bottom">
+      <p>Copyright © NetworkMaster.org. All rights reserved.</p>
+      <div class="nm-footer-bottom-links">
+        <a href="/tools/">ابزارها</a>
+        <a href="/guides/dns-records/">راهنما</a>
+        <a href="/login/">ورود</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+  <script src="/app.js?v=150"></script>
+</body>
+</html>

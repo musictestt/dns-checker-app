@@ -199,7 +199,6 @@ function createResultCard(item, query) {
       </div>
 
       <div class="stats">
-        <div class="stat">Response time: ${item.gatewayTimeMs ?? "-"} ms</div>
       </div>
     </section>
   `;
@@ -208,42 +207,12 @@ function createResultCard(item, query) {
 function renderResults(results, query) {
   resultsContainer.innerHTML = "";
 
-  const ownedResults = results.filter(item => item.location.sourceType === "owned");
-  const externalResults = results.filter(item => item.location.sourceType === "external");
-  const globalResults = results.filter(item => item.location.sourceType === "global");
-
-  if (ownedResults.length > 0) {
-    resultsContainer.insertAdjacentHTML(
-      "beforeend",
-      `<div class="result-group-title">Our DNS checks</div>`
-    );
-
-    ownedResults.forEach(item => {
-      resultsContainer.insertAdjacentHTML("beforeend", createResultCard(item, query));
-    });
+  if (!results || results.length === 0) {
+    return;
   }
-
-  if (externalResults.length > 0) {
-    resultsContainer.insertAdjacentHTML(
-      "beforeend",
-      `<div class="result-group-title">External DNS checks</div>`
-    );
-
-    externalResults.forEach(item => {
-      resultsContainer.insertAdjacentHTML("beforeend", createResultCard(item, query));
-    });
-  }
-
-  if (globalResults.length > 0) {
-    resultsContainer.insertAdjacentHTML(
-      "beforeend",
-      `<div class="result-group-title">Global DNS checks</div>`
-    );
-
-    globalResults.forEach(item => {
-      resultsContainer.insertAdjacentHTML("beforeend", createResultCard(item, query));
-    });
-  }
+results.forEach(item => {
+    resultsContainer.insertAdjacentHTML("beforeend", createResultCard(item, query));
+  });
 
   resultsContainer.querySelectorAll(".copy-button").forEach(button => {
     button.addEventListener("click", () => {
@@ -477,3 +446,123 @@ window.addEventListener("scroll", () => {
     navbarTicking = true;
   }
 });
+
+
+// =========================
+// Language Switcher
+// =========================
+
+const languageSwitcher = document.getElementById("languageSwitcher");
+const languageTrigger = document.getElementById("languageTrigger");
+const currentLangCode = document.getElementById("currentLangCode");
+const currentLangName = document.getElementById("currentLangName");
+const languageAltLink = document.getElementById("languageAltLink");
+const languageAltCode = document.getElementById("languageAltCode");
+const languageAltName = document.getElementById("languageAltName");
+
+function initLanguageSwitcher() {
+  if (!languageSwitcher || !languageTrigger || !currentLangCode || !currentLangName || !languageAltLink) {
+    return;
+  }
+
+  const path = window.location.pathname.replace(/\/+$/, "");
+  const isPersianPage = path === "/fa" || path.startsWith("/fa/");
+
+  const currentLanguage = isPersianPage
+    ? { code: "FA", name: "Persian" }
+    : { code: "US", name: "English" };
+
+  const alternativeLanguage = isPersianPage
+    ? { code: "US", name: "English", href: "/" }
+    : { code: "FA", name: "Persian", href: "/fa/" };
+
+  currentLangCode.textContent = currentLanguage.code;
+  currentLangName.textContent = currentLanguage.name;
+
+  languageAltCode.textContent = alternativeLanguage.code;
+  languageAltName.textContent = alternativeLanguage.name;
+  languageAltLink.href = alternativeLanguage.href;
+
+  languageTrigger.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const isOpen = languageSwitcher.classList.toggle("is-open");
+    languageTrigger.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.addEventListener("click", () => {
+    languageSwitcher.classList.remove("is-open");
+    languageTrigger.setAttribute("aria-expanded", "false");
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      languageSwitcher.classList.remove("is-open");
+      languageTrigger.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+initLanguageSwitcher();
+
+// NETWORKMASTER FINAL LANGUAGE ROUTING FIX START
+(function () {
+  function applyLanguageRouting() {
+    var path = window.location.pathname.replace(/\/+$/, "");
+
+    var isPersianPage =
+      path === "/fa" ||
+      path.indexOf("/fa/") === 0 ||
+      path === "/tools/dns-checker/fa" ||
+      path.indexOf("/tools/dns-checker/fa/") === 0;
+
+    var currentCode = document.getElementById("currentLangCode");
+    var currentName = document.getElementById("currentLangName");
+    var altCode = document.getElementById("languageAltCode");
+    var altName = document.getElementById("languageAltName");
+    var altLink = document.getElementById("languageAltLink");
+
+    if (!currentCode || !currentName || !altCode || !altName || !altLink) {
+      return;
+    }
+
+    if (isPersianPage) {
+      currentCode.textContent = "FA";
+      currentName.textContent = "Persian";
+
+      altCode.textContent = "US";
+      altName.textContent = "English";
+
+      altLink.setAttribute("href", "/tools/dns-checker/");
+      altLink.onclick = function (event) {
+        event.preventDefault();
+        window.location.href = "/tools/dns-checker/";
+        return false;
+      };
+    } else {
+      currentCode.textContent = "US";
+      currentName.textContent = "English";
+
+      altCode.textContent = "FA";
+      altName.textContent = "Persian";
+
+      altLink.setAttribute("href", "/tools/dns-checker/fa/");
+      altLink.onclick = function (event) {
+        event.preventDefault();
+        window.location.href = "/tools/dns-checker/fa/";
+        return false;
+      };
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyLanguageRouting);
+  } else {
+    applyLanguageRouting();
+  }
+
+  window.addEventListener("pageshow", applyLanguageRouting);
+})();
+// NETWORKMASTER FINAL LANGUAGE ROUTING FIX END
+

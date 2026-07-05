@@ -1,0 +1,60 @@
+ Describing process with id 1 - name dns-checker-backend 
+┌───────────────────┬───────────────────────────────────────────────┐
+│ status            │ online                                        │
+│ name              │ dns-checker-backend                           │
+│ namespace         │ default                                       │
+│ version           │ 1.0.0                                         │
+│ restarts          │ 78                                            │
+│ uptime            │ 18m                                           │
+│ script path       │ /root/dns-checker-app/server.js               │
+│ script args       │ N/A                                           │
+│ error log path    │ /root/.pm2/logs/dns-checker-backend-error.log │
+│ out log path      │ /root/.pm2/logs/dns-checker-backend-out.log   │
+│ pid path          │ /root/.pm2/pids/dns-checker-backend-1.pid     │
+│ interpreter       │ node                                          │
+│ interpreter args  │ N/A                                           │
+│ script id         │ 1                                             │
+│ exec cwd          │ /root/dns-checker-app                         │
+│ exec mode         │ fork_mode                                     │
+│ node.js version   │ 18.19.1                                       │
+│ node env          │ N/A                                           │
+│ watch & reload    │ ✘                                             │
+│ unstable restarts │ 0                                             │
+│ created at        │ 2026-07-05T19:24:51.514Z                      │
+└───────────────────┴───────────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger dns-checker-backend <action_name>
+
+ Code metrics value 
+┌────────────────────────┬───────────┐
+│ Heap Size              │ 10.54 MiB │
+│ Heap Usage             │ 84.34 %   │
+│ Used Heap Size         │ 8.88 MiB  │
+│ Active requests        │ 0         │
+│ Active handles         │ 4         │
+│ Event Loop Latency     │ 0.60 ms   │
+│ Event Loop Latency p95 │ 1.55 ms   │
+│ HTTP Mean Latency      │ 6 ms      │
+│ HTTP P95 Latency       │ 2442 ms   │
+│ HTTP                   │ 0 req/min │
+└────────────────────────┴───────────┘
+ Divergent env variables from local env 
+┌────────────────┬─────────────────────────────────────────┐
+│ SSH_CONNECTION │ 5.217.159.120 23791 213.176.121.68 2011 │
+│ XDG_SESSION_ID │ 1                                       │
+│ SSH_CLIENT     │ 5.217.159.120 23791 2011                │
+│ SSH_TTY        │ /dev/pts/0                              │
+│ OLDPWD         │ /root/dns-agent                         │
+└────────────────┴─────────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs dns-checker-backend [--lines 1000]` to display logs
+ Use `pm2 env 1` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage dns-checker-backend

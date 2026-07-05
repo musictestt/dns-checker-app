@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>NetworkMaster | Network, DNS and Domain Tools</title>
+  <meta name="description" content="NetworkMaster provides fast DNS, domain, SSL, IP, port, ping and traceroute tools for developers, admins and network teams." />
+  <link rel="canonical" href="https://networkmaster.org/" />
+
+  <link rel="stylesheet" href="/main.css?v=61" />
+</head>
+
+<body>
+  <div class="site-bg">
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
+    <div class="grid-bg"></div>
+  </div>
+
+  <header class="home-header">
+    <a href="/" class="brand" aria-label="NetworkMaster home">
+      <img src="/networkmaster-logo.png" alt="NetworkMaster" />
+    </a>
+
+    <nav class="home-nav">
+      <a href="/tools/">Tools</a>
+      <a href="/tools/dns-checker/">DNS Checker</a>
+      <a href="/guides/dns-records/">Guides</a>
+      <a href="#launch">Quick Launch</a>
+
+
+      <div class="language-switcher" id="languageSwitcher">
+        <button class="nav-link language language-trigger" type="button" id="languageTrigger" aria-haspopup="true" aria-expanded="false">
+          <span class="flag-box" id="currentLangCode">US</span>
+          <span id="currentLangName">English</span>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="language-menu" id="languageMenu" role="menu" aria-label="Choose language">
+          <a href="#" class="language-option" id="languageAltLink" role="menuitem">
+            <span class="flag-box" id="languageAltCode">FA</span>
+            <span id="languageAltName">Persian</span>
+          </a>
+        </div>
+      </div>
+
+    </nav>
+
+    <a class="header-cta" href="/login/">Sign in | Get started</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <div class="eyebrow">
+          <span class="live-dot"></span>
+          Network intelligence toolkit
+        </div>
+
+        <h1>
+          Debug DNS, domains and networks from one clean command center.
+        </h1>
+
+        <p>
+          NetworkMaster brings DNS checks, WHOIS lookup, SSL inspection, IP lookup,
+          port testing, traceroute and ping tools into a single fast workspace.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn primary" href="/tools/dns-checker/">Open DNS Checker</a>
+          <a class="btn secondary" href="/tools/">Explore tools</a>
+        </div>
+
+        <div class="trust-row">
+          <span>DNS</span>
+          <span>SSL</span>
+          <span>WHOIS</span>
+          <span>IP</span>
+          <span>PORT</span>
+          <span>PING</span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <canvas id="networkCanvas" width="640" height="460"></canvas>
+
+        <div class="terminal-card">
+          <div class="terminal-top">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="terminal-line muted">$ networkmaster check example.com</div>
+          <div class="terminal-line"><b>DNS</b> A record resolved</div>
+          <div class="terminal-line"><b>SSL</b> certificate healthy</div>
+          <div class="terminal-line"><b>PORT</b> 443 reachable</div>
+          <div class="terminal-status">All systems reachable</div>
+        </div>
+
+        <div class="floating-pill pill-one">TTL 300s</div>
+        <div class="floating-pill pill-two">A 104.21.x.x</div>
+        <div class="floating-pill pill-three">HTTPS OK</div>
+      </div>
+    </section>
+
+    <section class="quick-launch reveal" id="launch">
+      <div>
+        <span class="section-kicker">Quick Launch</span>
+        <h2>Start with a domain or IP.</h2>
+        <p>Pick a tool and jump directly into the right workspace.</p>
+      </div>
+
+      <form class="launcher" id="toolLauncher">
+        <input id="launchInput" type="text" placeholder="example.com or 8.8.8.8" autocomplete="off" />
+        <select id="launchTool">
+          <option value="/tools/dns-checker/">DNS Checker</option>
+          <option value="/tools/whois/">WHOIS Lookup</option>
+          <option value="/tools/ssl-checker/">SSL Checker</option>
+          <option value="/tools/ip-lookup/">IP Lookup</option>
+          <option value="/tools/port-checker/">Port Checker</option>
+          <option value="/tools/traceroute/">Traceroute</option>
+          <option value="/tools/ping/">Ping</option>
+        </select>
+        <button type="submit">Run</button>
+      </form>
+    </section>
+
+    <section class="tools-section">
+      <div class="section-head reveal">
+        <span class="section-kicker">Tools</span>
+        <h2>Everything starts from one toolbox.</h2>
+        <p>Available tools are ready to use. The rest are prepared as dedicated workspaces.</p>
+      </div>
+
+      <div class="tools-grid">
+        <a class="tool-card available reveal" href="/tools/dns-checker/">
+          <div class="tool-icon">DNS</div>
+          <div class="tool-status">Available</div>
+          <h3>DNS Checker</h3>
+          <p>Check A, AAAA, MX, NS, TXT, SOA, CAA, PTR, SRV, DS and DNSKEY records.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/whois/">
+          <div class="tool-icon">WHO</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>WHOIS Lookup</h3>
+          <p>Inspect domain registration, ownership and registrar information.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/ssl-checker/">
+          <div class="tool-icon">SSL</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>SSL Checker</h3>
+          <p>Validate certificates, expiry dates, issuer chains and HTTPS status.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/ip-lookup/">
+          <div class="tool-icon">IP</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>IP Lookup</h3>
+          <p>Look up IP information, ASN, network ownership and geo hints.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/port-checker/">
+          <div class="tool-icon">TCP</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>Port Checker</h3>
+          <p>Check whether a TCP port is reachable from outside your network.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/traceroute/">
+          <div class="tool-icon">RTR</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>Traceroute</h3>
+          <p>Trace the route packets take to a host and identify network hops.</p>
+        </a>
+
+        <a class="tool-card reveal" href="/tools/ping/">
+          <div class="tool-icon">PNG</div>
+          <div class="tool-status soon">Coming soon</div>
+          <h3>Ping</h3>
+          <p>Measure reachability and latency to hosts, domains and IP addresses.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="story-section">
+      <div class="story-copy reveal">
+        <span class="section-kicker">Workflow</span>
+        <h2>Follow the signal, not the confusion.</h2>
+        <p>
+          Network issues often move across layers. DNS resolves, TLS fails, ports close,
+          routes change. NetworkMaster is designed to help you move through those layers quickly.
+        </p>
+      </div>
+
+      <div class="signal-timeline">
+        <div class="signal-step reveal">
+          <span>01</span>
+          <h3>Resolve</h3>
+          <p>Start by checking DNS answers and propagation status.</p>
+        </div>
+        <div class="signal-step reveal">
+          <span>02</span>
+          <h3>Inspect</h3>
+          <p>Review domain, SSL and IP information in context.</p>
+        </div>
+        <div class="signal-step reveal">
+          <span>03</span>
+          <h3>Reach</h3>
+          <p>Test ports, ping hosts and trace routes to find where traffic stops.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="guides-section reveal">
+      <div>
+        <span class="section-kicker">Guides</span>
+        <h2>Learn what the tools are showing you.</h2>
+        <p>Short guides for DNS records, propagation, TTL and troubleshooting basics.</p>
+      </div>
+
+      <div class="guide-cards">
+        <a href="/guides/dns-records/">DNS Records Guide</a>
+        <a href="/guides/dns-records/">DNS Propagation Basics</a>
+        <a href="/guides/dns-records/">What is TTL?</a>
+      </div>
+    </section>
+  </main>
+
+  
+<footer class="home-footer nm-home-footer">
+  <div class="nm-home-footer-inner">
+    <div class="nm-home-footer-top">
+      <div class="nm-home-footer-brand">
+        <a href="/" aria-label="NetworkMaster home">
+          <img src="/networkmaster-logo.png" alt="NetworkMaster" class="nm-home-footer-logo" />
+        </a>
+        <p>
+          NetworkMaster brings DNS, domain, SSL, IP and network troubleshooting tools
+          into one clean workspace for developers, admins and IT teams.
+        </p>
+      </div>
+
+      <div class="nm-home-footer-grid">
+        <div class="nm-home-footer-col">
+          <h3>Platform</h3>
+          <ul>
+            <li><a href="/"><span></span>Home</a></li>
+            <li><a href="/tools/"><span></span>All Tools</a></li>
+            <li><a href="/login/"><span></span>Sign in</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-home-footer-col">
+          <h3>DNS & Domain</h3>
+          <ul>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Checker</a></li>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Lookup</a></li>
+            <li><a href="/tools/dns-checker/"><span></span>DNS Propagation</a></li>
+            <li><a href="/tools/whois/"><span></span>WHOIS Lookup</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-home-footer-col">
+          <h3>Network Tools</h3>
+          <ul>
+            <li><a href="/tools/ssl-checker/"><span></span>SSL Checker</a></li>
+            <li><a href="/tools/ip-lookup/"><span></span>IP Lookup</a></li>
+            <li><a href="/tools/port-checker/"><span></span>Port Checker</a></li>
+            <li><a href="/tools/traceroute/"><span></span>Traceroute</a></li>
+            <li><a href="/tools/ping/"><span></span>Ping</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-home-footer-col">
+          <h3>Guides</h3>
+          <ul>
+            <li><a href="/guides/dns-records/"><span></span>DNS Records Guide</a></li>
+            <li><a href="/guides/dns-records/"><span></span>DNS Propagation</a></li>
+            <li><a href="/guides/dns-records/"><span></span>DNSSEC Basics</a></li>
+            <li><a href="/guides/dns-records/"><span></span>TTL Explained</a></li>
+          </ul>
+        </div>
+
+        <div class="nm-home-footer-col">
+          <h3>NetworkMaster</h3>
+          <ul>
+            <li><a href="/tools/"><span></span>Tools</a></li>
+            <li><a href="/guides/dns-records/"><span></span>Resources</a></li>
+            <li><a href="/login/"><span></span>Account</a></li>
+            <li><a href="/tools/dns-checker/fa/"><span></span>Persian Version</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nm-home-footer-bottom">
+      <p>Copyright © NetworkMaster.org. All rights reserved.</p>
+      <div class="nm-home-footer-bottom-links">
+        <a href="/tools/">Tools</a>
+        <a href="/guides/dns-records/">Guides</a>
+        <a href="/login/">Sign in</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+  <script src="/main.js?v=30"></script>
+</body>
+</html>
